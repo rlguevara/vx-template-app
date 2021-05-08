@@ -1,0 +1,17 @@
+{
+    "name": "Vx Template App",
+    "short_name": "Vx App",
+    "description": "Vx app description",
+    "icons": [
+      {
+        "src": "icons/logo-180.png",
+        "sizes": "180x180",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "index.html",
+    "display": "fullscreen",
+    "theme_color": "#ffffff",
+    "background_color": "#e20082"
+  }
+  

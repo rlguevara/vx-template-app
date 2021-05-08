@@ -1,0 +1,9 @@
+schema: "schema.graphql"
+documents:
+  - query.graphql
+extensions:
+  endpoints:
+    dev:
+      url: https://api.vx-template-app.network/v1/graphql
+      headers:
+        x-hasura-access-key: vx-template-app-access-key
