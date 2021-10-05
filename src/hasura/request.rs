@@ -1,3 +1,4 @@
+use crate::auth::*;
 use graphql_client::{GraphQLQuery, QueryBody};
 use log::*;
 use yew::format::Json;
@@ -5,9 +6,9 @@ use yew::services::fetch::{self, FetchService, FetchTask, Response};
 use yew::{Component, ComponentLink};
 
 fn query_req<T>(query: Json<T>) -> fetch::Request<Json<T>> {
-    fetch::Request::post("https://api.vx-template-app.network/v1/graphql")
+    fetch::Request::post(AUTH_GRAOHQL_ENDPOINT.to_string())
         .header("Content-Type", "application/json")
-        .header("x-hasura-access-key", "vx-template-app-access-key")
+        .header("x-hasura-access-key", AUTH_X_HASURA_ACCESS_KEY.to_string())
         .body(query)
         .expect("Failed to build request.")
 }
