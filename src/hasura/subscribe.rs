@@ -127,6 +127,11 @@ impl SubscriptionService {
                                     }
                                 }
                             }
+                            ServerMessage::Complete { id } => {
+                                info!("SubscriptionService: Complete [Handled] {:?}", id);
+                                let mut service = cloned_service.borrow_mut();
+                                service.subs.remove(&id);
+                            }
                             _ => {
                                 warn!("SubscriptionService: {:?} [NOT Handled]", msg);
                             }
