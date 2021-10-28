@@ -73,8 +73,9 @@ services:
       HASURA_GRAPHQL_DATABASE_URL: postgres://odoo:odoo_pg_pass@odoo_db:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
       HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_ADMIN_SECRET: secret
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      HASURA_GRAPHQL_JWT_SECRET= {"type": "HS256", "jwk_url": "http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs"}
+      HASURA_GRAPHQL_JWT_SECRET: '{"type": "HS256", "jwk_url": "http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs"}'
 volumes:
   odoo_db_data:
   keycloak_db_data:
