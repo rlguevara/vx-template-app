@@ -24,5 +24,6 @@
     'data': [
         'views/ir_model_fields.xml',
         'views/ir_ui_view.xml',
+        'data/auth_oauth_keycloak_data.xml'
     ],
 }

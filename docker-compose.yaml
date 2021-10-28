@@ -68,6 +68,7 @@ services:
       - 8079:8080
     depends_on:
       - odoo_db
+      - keycloak
     restart: always
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://odoo:odoo_pg_pass@odoo_db:5432/postgres
