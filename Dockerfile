@@ -1,0 +1,10 @@
+FROM rust:1.56 AS builder
+WORKDIR /usr/src/myapp
+COPY . .
+RUN cargo install --locked trunk
+RUN cargo install wasm-bindgen-cli
+RUN rustup target add wasm32-unknown-unknown
+CMD trunk build --release
+
+FROM nginx:1.21.3
+COPY --from=builder /usr/src/myapp/dist /usr/share/nginx/html

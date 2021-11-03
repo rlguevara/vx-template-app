@@ -1,0 +1,90 @@
+version: '3.6'
+services:
+  odoo:
+    image: odoo:14.0
+    ports:
+      - 8069:8069
+    depends_on:
+      - odoo_db
+    restart: always
+    command: '-- -d postgres -i base,auth_oauth,auth_oauth_keycloak'
+    volumes:
+      - odoo_web_data:/var/lib/odoo
+      - ./odoo/config:/etc/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/themes:/mnt/themes
+      - ./odoo/default:/mnt/addons
+    environment:
+      HOST: odoo_db
+      USER: odoo
+      POSTGRES_PASSWORD: odoo_pg_pass
+  odoo_db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: odoo_pg_pass
+      POSTGRES_USER: odoo
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo_db_data:/var/lib/postgresql/data/pgdata
+  keycloak:
+    image: quay.io/keycloak/keycloak:15.0.2
+    ports:
+      - 8080:8080
+    depends_on:
+      - keycloak_db
+    restart: always
+    command:
+      - '-Dkeycloak.profile.feature.upload_scripts=enabled'
+      - '-Dkeycloak.migration.action=import'
+      - '-Dkeycloak.migration.provider=singleFile'
+      - '-Dkeycloak.migration.file=/tmp/master-realm.json'
+      - '-Dkeycloak.migration.strategy=OVERWRITE_EXISTING'
+    volumes:
+      - type: bind
+        source: './keycloak/master-realm.json'
+        target: '/tmp/master-realm.json'
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak_db
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: keycloak
+      KEYCLOAK_PASSWORD: keycloak
+  keycloak_db:
+    image: postgres:12
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+  hasura:
+    image: hasura/graphql-engine:v2.0.8
+    ports:
+      - 8079:8080
+    depends_on:
+      - odoo_db
+      - keycloak
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://odoo:odoo_pg_pass@odoo_db:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_ADMIN_SECRET: secret
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_JWT_SECRET: '{"type": "HS256", "jwk_url": "http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs"}'
+  vx-template:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    restart: unless-stopped
+volumes:
+  odoo_db_data:
+  keycloak_db_data:
+  odoo_web_data:
