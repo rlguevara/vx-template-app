@@ -4,5 +4,4 @@ COPY . .
 RUN cargo install --locked trunk
 RUN cargo install wasm-bindgen-cli
 RUN rustup target add wasm32-unknown-unknown
-CMD trunk build --release
 CMD trunk serve
