@@ -78,9 +78,12 @@ services:
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_JWT_SECRET: '{"type": "HS256", "jwk_url": "http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs"}'
   vx-template:
-    image: template-dev
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
     ports:
       - 80:80
+    restart: unless-stopped
 volumes:
   odoo_db_data:
   keycloak_db_data:
