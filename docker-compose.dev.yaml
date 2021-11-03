@@ -80,7 +80,7 @@ services:
   vx-template:
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - 80:80
     restart: unless-stopped
