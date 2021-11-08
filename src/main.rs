@@ -1,31 +1,18 @@
 #![recursion_limit = "512"]
 
-use geojson::{Geometry, Value};
-use hasura::{
-    subscribe::{self},
-    Request, Subscribe,
-};
 use log::*;
-use serde_derive::{Deserialize, Serialize};
-use uuid::Uuid;
-use yew::format::Json;
-use yew::{
-    prelude::*,
-    services::{
-        fetch::FetchTask,
-        storage::{Area, StorageService},
-        timeout, Task,
-    },
-};
+use test::*;
+use yew::prelude::*;
 
-mod hasura;
+mod config;
+pub mod hasura;
+mod test;
 
 #[derive(Debug)]
-enum Message {
-}
+enum Message {}
 
 struct Model {
-    link: ComponentLink<Self>,
+    _link: ComponentLink<Self>,
 }
 
 impl Component for Model {
@@ -33,9 +20,7 @@ impl Component for Model {
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self {
-            link,
-        }
+        Self { _link: link }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -49,7 +34,9 @@ impl Component for Model {
     }
 
     fn view(&self) -> Html {
-        html!{}
+        html! {
+            <TestView />
+        }
     }
 }
 

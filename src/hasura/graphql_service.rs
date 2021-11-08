@@ -1,0 +1,535 @@
+use super::protocol::*;
+use crate::config::*;
+use graphql_client::{GraphQLQuery, QueryBody};
+use instant::Instant;
+use log::*;
+use serde::{Deserialize, Serialize};
+use serde_json;
+use std::collections::HashMap;
+use std::{
+    rc::{Rc, Weak},
+    sync::{Arc, Mutex},
+};
+use uuid::Uuid;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::{CloseEvent, ErrorEvent, MessageEvent, WebSocket};
+use yew::{services::Task, Callback, Component, ComponentLink};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+enum Headers {
+    #[serde(rename = "headers")]
+    Auth {
+        #[serde(rename = "x-hasura-admin-secret")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        x_hasura_admin_secret: Option<String>,
+    },
+}
+
+struct SubscriptionInfo {
+    uuid: Uuid,
+    payload: ClientMessage,
+    callback: Callback<String>,
+    // service: ServiceStateHandle,
+}
+
+struct GraphQLState {
+    is_ready: bool,
+    subs: HashMap<Uuid, Weak<SubscriptionInfo>>,
+}
+
+impl Drop for GraphQLState {
+    fn drop(&mut self) {
+        info!("GraphQLState: Dropped")
+    }
+}
+
+struct WebSocketState {
+    ws: Option<WebSocket>,
+    ws_onmessage: Option<Closure<dyn FnMut(MessageEvent)>>,
+    ws_onerror: Option<Closure<dyn FnMut(ErrorEvent)>>,
+    ws_onclose: Option<Closure<dyn FnMut(CloseEvent)>>,
+    ws_onopen: Option<Closure<dyn FnMut(JsValue)>>,
+}
+
+impl Drop for WebSocketState {
+    fn drop(&mut self) {
+        info!("WebSocketState: Dropped");
+        if let Some(ws) = self.ws.as_mut() {
+            ws.set_onmessage(None);
+            ws.set_onerror(None);
+            ws.set_onclose(None);
+            ws.set_onopen(None);
+        }
+    }
+}
+
+struct PingState {
+    #[allow(dead_code)]
+    on_keep_alive: Option<Closure<dyn FnMut(JsValue)>>,
+    keep_alive_id: i32,
+    last_ping: Instant,
+}
+
+impl Drop for PingState {
+    fn drop(&mut self) {
+        info!("PingState: Dropped");
+        yew::utils::window().clear_interval_with_handle(self.keep_alive_id);
+    }
+}
+
+pub struct GraphQLTask {
+    is_active: bool,
+    ws_state: Arc<Mutex<WebSocketState>>,
+    graphql_state: Arc<Mutex<GraphQLState>>,
+    ping_state: Arc<Mutex<PingState>>,
+}
+
+impl Task for GraphQLTask {
+    fn is_active(&self) -> bool {
+        self.is_active
+    }
+}
+
+impl Drop for GraphQLTask {
+    fn drop(&mut self) {
+        info!("GraphQLTask: Dropped");
+        if let Ok(ping_state) = self.ping_state.lock().as_mut() {
+            ping_state.on_keep_alive = None;
+            yew::utils::window().clear_interval_with_handle(ping_state.keep_alive_id);
+        }
+    }
+}
+
+impl GraphQLTask {
+    fn add_subscription(&self, sub_info: &Rc<SubscriptionInfo>) {
+        let uuid = sub_info.uuid.clone();
+        let weak_sub = Rc::downgrade(&sub_info);
+        if let Ok(graphql_state) = self.graphql_state.lock().as_mut() {
+            graphql_state.subs.insert(uuid, weak_sub);
+        }
+    }
+
+    fn setup(
+        ws_state: Arc<Mutex<WebSocketState>>,
+        graphql_state: Arc<Mutex<GraphQLState>>,
+        ping_state: Arc<Mutex<PingState>>,
+    ) {
+        let ws = WebSocket::new_with_str(&AUTH_GRAOHQL_WS_ENDPOINT, "graphql-transport-ws").ok();
+
+        if let Some(ws) = ws {
+            if let Ok(ws_state) = ws_state.lock().as_mut() {
+                ws_state.ws = Some(ws.clone());
+            }
+
+            // OnMessage
+            let cloned_ws = ws.clone();
+            let cloned_graphql_state = graphql_state.clone();
+            let ws_onmessage: Closure<dyn FnMut(MessageEvent)> =
+                Closure::wrap(Box::new(move |e: MessageEvent| {
+                    if let Ok(abuf) = e.data().dyn_into::<js_sys::ArrayBuffer>() {
+                        warn!("GraphQLTask: OnMessage, received arraybuffer: {:?}", abuf);
+                    } else if let Ok(blob) = e.data().dyn_into::<web_sys::Blob>() {
+                        warn!("GraphQLTask: OnMessage, received blob: {:?}", blob);
+                    } else if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
+                        debug!("GraphQLTask: OnMessage, received Text: {:?}", txt);
+                        let msg = serde_json::from_str::<ServerMessage>(
+                            txt.as_string().unwrap_or_default().as_str(),
+                        );
+                        match msg {
+                            Ok(msg) => match msg {
+                                ServerMessage::ConnectionAck => {
+                                    info!("GraphQLTask: ConnectionAck [Handled]");
+                                    if let Ok(graphql_state) = cloned_graphql_state.lock().as_mut()
+                                    {
+                                        graphql_state.is_ready = true;
+                                        for (_, sub_info) in graphql_state.subs.iter() {
+                                            if let Some(sub_info) = sub_info.upgrade() {
+                                                GraphQLTask::subscribe(&cloned_ws, &sub_info);
+                                            }
+                                        }
+                                    }
+                                }
+                                ServerMessage::Ping => {
+                                    debug!("GraphQLTask: Ping [Handled]");
+                                    if let Ok(ping_state) = ping_state.lock().as_mut() {
+                                        ping_state.last_ping = Instant::now();
+                                    }
+                                    // TODO: Pong is happening too fast, disabling for now
+                                    // let payload = ClientMessage::Pong {};
+                                    // let payload =
+                                    //     serde_json::to_string(&payload).unwrap_or_default();
+                                    // let res = cloned_ws.send_with_str(&payload);
+                                    // if let Err(err) = res {
+                                    //     error!("GraphQLTask: {:?}", err);
+                                    // }
+                                }
+                                ServerMessage::Next { id, payload } => {
+                                    info!("GraphQLTask: Next [Handled] {:?} {:?}", id, payload);
+                                    if let Ok(id) = Uuid::parse_str(&*id) {
+                                        if let Ok(graphql_state) =
+                                            cloned_graphql_state.lock().as_mut()
+                                        {
+                                            if let Some(sub_info) = graphql_state.subs.get(&id) {
+                                                if let Some(sub_info) = sub_info.upgrade() {
+                                                    if let Some(data) = payload.data {
+                                                        sub_info.callback.emit(data.to_string());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                ServerMessage::Complete { id } => {
+                                    info!("GraphQLTask: Complete [Handled] {:?}", id);
+                                    if let Ok(id) = Uuid::parse_str(&*id) {
+                                        if let Ok(graphql_state) =
+                                            cloned_graphql_state.lock().as_mut()
+                                        {
+                                            graphql_state.subs.remove(&id);
+                                        }
+                                    }
+                                }
+                                _ => {
+                                    warn!("GraphQLTask: {:?} [NOT Handled]", msg);
+                                }
+                            },
+                            Err(err) => {
+                                warn!("GraphQLTask: {:?}", err)
+                            }
+                        };
+                    } else {
+                        warn!("GraphQLTask: OnMessage, received Unknown: {:?}", e.data());
+                    }
+                }) as Box<dyn FnMut(MessageEvent)>);
+            ws.set_onmessage(Some(ws_onmessage.as_ref().unchecked_ref()));
+            if let Ok(ws_state) = ws_state.lock().as_mut() {
+                ws_state.ws_onmessage = Some(ws_onmessage);
+            }
+
+            // OnError
+            let ws_onerror: Closure<dyn FnMut(ErrorEvent)> =
+                Closure::wrap(Box::new(move |e: ErrorEvent| {
+                    error!("GraphQLTask: OnError: {:?}", e);
+                }) as Box<dyn FnMut(ErrorEvent)>);
+            ws.set_onerror(Some(ws_onerror.as_ref().unchecked_ref()));
+            if let Ok(ws_state) = ws_state.lock().as_mut() {
+                ws_state.ws_onerror = Some(ws_onerror);
+            }
+
+            // OnClose
+            let cloned_graphql_state = graphql_state.clone();
+            let ws_onclose: Closure<dyn FnMut(CloseEvent)> =
+                Closure::wrap(Box::new(move |e: CloseEvent| {
+                    info!("GraphQLTask: OnClose: {:?}", e);
+                    if let Ok(graphql_state) = cloned_graphql_state.lock().as_mut() {
+                        graphql_state.is_ready = false;
+                    }
+                }) as Box<dyn FnMut(CloseEvent)>);
+            ws.set_onclose(Some(ws_onclose.as_ref().unchecked_ref()));
+            if let Ok(ws_state) = ws_state.lock().as_mut() {
+                ws_state.ws_onclose = Some(ws_onclose);
+            }
+
+            // OnOpen
+            let cloned_ws = ws.clone();
+            let ws_onopen: Closure<dyn FnMut(JsValue)> = Closure::wrap(Box::new(move |_| {
+                info!("GraphQLTask: OnOpen");
+                let msg = Headers::Auth {
+                    x_hasura_admin_secret: Some(AUTH_X_HASURA_ACCESS_KEY.to_string()),
+                };
+                let headers = serde_json::to_value(&msg).ok();
+                let payload = ClientMessage::ConnectionInit { payload: headers };
+                let payload = serde_json::to_string(&payload).unwrap_or_default();
+                info!("GraphQLTask: {:?}", payload);
+                let res = cloned_ws.send_with_str(&payload);
+                info!("GraphQLTask: {:?}", res);
+            })
+                as Box<dyn FnMut(JsValue)>);
+            ws.set_onopen(Some(ws_onopen.as_ref().unchecked_ref()));
+            if let Ok(ws_state) = ws_state.lock().as_mut() {
+                ws_state.ws_onopen = Some(ws_onopen);
+            };
+        }
+    }
+
+    fn subscribe(ws: &WebSocket, sub_info: &SubscriptionInfo) {
+        let msg_str = serde_json::to_string(&sub_info.payload);
+        match msg_str {
+            Ok(msg_str) => {
+                info!("GraphQLTask: Subscribe: {:?}", msg_str);
+                let res = ws.send_with_str(&msg_str);
+                if let Err(err) = res {
+                    error!("GraphQLTask: {:?}", err);
+                }
+            }
+            Err(err) => {
+                error!("GraphQLTask: {:?}", err);
+            }
+        };
+    }
+}
+
+pub struct SubscriptionTask {
+    sub_info: Rc<SubscriptionInfo>,
+    ws_state: Arc<Mutex<WebSocketState>>,
+    graphql_state: Arc<Mutex<GraphQLState>>,
+}
+
+impl Task for SubscriptionTask {
+    fn is_active(&self) -> bool {
+        true
+    }
+}
+
+impl Drop for SubscriptionTask {
+    fn drop(&mut self) {
+        info!("SubscriptionTask: Dropped");
+        let id = self.sub_info.uuid.to_string();
+        let msg = ClientMessage::Complete { id: id.clone() };
+        let msg = serde_json::to_string(&msg).unwrap();
+
+        if let Ok(graphql_state) = self.graphql_state.lock().as_mut() {
+            graphql_state.subs.remove(&self.sub_info.uuid);
+        }
+
+        if let Ok(ws_state) = self.ws_state.lock() {
+            match &ws_state.ws {
+                Some(ws) => {
+                    let res = ws.send_with_str(&msg);
+                    if let Err(err) = res {
+                        error!("SubscriptionTask: {:?}", err);
+                    }
+                }
+                None => {
+                    warn!("SubscriptionTask: Invalid WebSocket");
+                }
+            }
+        }
+    }
+}
+
+pub trait Subscribe {
+    fn subscribe<C, M, F>(
+        graphql_task: &GraphQLTask,
+        link: &ComponentLink<C>,
+        vars: Self::Variables,
+        on_response: F,
+    ) -> SubscriptionTask
+    where
+        Self: GraphQLQuery,
+        C: Component,
+        M: Into<C::Message>,
+        F: Fn(Option<Self::ResponseData>) -> M + 'static,
+    {
+        let uuid = Uuid::new_v4();
+        let vars_value = serde_json::to_value(&vars).ok();
+        let query: QueryBody<Self::Variables> = Self::build_query(vars);
+        let callback: Callback<String> = link.callback(move |json: String| {
+            let data: Result<Self::ResponseData, serde_json::Error> = serde_json::from_str(&json);
+            on_response(data.ok())
+        });
+
+        let payload = ClientMessage::Subscribe {
+            id: uuid.to_string(),
+            payload: ClientPayload {
+                variables: vars_value,
+                query: query.query.to_string(),
+                operation_name: Some(query.operation_name.to_string()),
+            },
+        };
+
+        let sub_info = SubscriptionInfo {
+            uuid,
+            payload,
+            callback,
+        };
+        let sub_info = Rc::new(sub_info);
+        graphql_task.add_subscription(&sub_info);
+
+        if let Ok(graphl_state) = graphql_task.graphql_state.lock() {
+            if graphl_state.is_ready {
+                if let Ok(ws_state) = &graphql_task.ws_state.lock() {
+                    if let Some(ws) = &ws_state.ws {
+                        GraphQLTask::subscribe(ws, &sub_info);
+                    }
+                }
+            }
+        }
+
+        SubscriptionTask {
+            sub_info,
+            ws_state: graphql_task.ws_state.clone(),
+            graphql_state: graphql_task.graphql_state.clone(),
+        }
+    }
+}
+
+pub struct RequestTask {
+    sub_info: Rc<SubscriptionInfo>,
+    ws_state: Arc<Mutex<WebSocketState>>,
+    graphql_state: Arc<Mutex<GraphQLState>>,
+}
+
+impl Task for RequestTask {
+    fn is_active(&self) -> bool {
+        true
+    }
+}
+
+impl Drop for RequestTask {
+    fn drop(&mut self) {
+        info!("RequestTask: Dropped");
+        let id = self.sub_info.uuid.to_string();
+        let msg = ClientMessage::Complete { id: id.clone() };
+        let msg = serde_json::to_string(&msg).unwrap();
+
+        if let Ok(graphql_state) = self.graphql_state.lock().as_mut() {
+            graphql_state.subs.remove(&self.sub_info.uuid);
+        }
+
+        if let Ok(ws_state) = self.ws_state.lock() {
+            match &ws_state.ws {
+                Some(ws) => {
+                    let res = ws.send_with_str(&msg);
+                    if let Err(err) = res {
+                        error!("RequestTask: {:?}", err);
+                    }
+                }
+                None => {
+                    warn!("RequestTask: Invalid WebSocket");
+                }
+            }
+        }
+    }
+}
+
+pub trait Request {
+    fn request<C, M, F>(
+        graphql_task: &GraphQLTask,
+        link: &ComponentLink<C>,
+        vars: Self::Variables,
+        on_response: F,
+    ) -> RequestTask
+    where
+        Self: GraphQLQuery,
+        C: Component,
+        M: Into<C::Message>,
+        F: Fn(Option<Self::ResponseData>) -> M + 'static,
+    {
+        let uuid = Uuid::new_v4();
+        let vars_value = serde_json::to_value(&vars).ok();
+        let query: QueryBody<Self::Variables> = Self::build_query(vars);
+        let callback: Callback<String> = link.callback(move |json: String| {
+            let data: Result<Self::ResponseData, serde_json::Error> = serde_json::from_str(&json);
+            on_response(data.ok())
+        });
+
+        let payload = ClientMessage::Subscribe {
+            id: uuid.to_string(),
+            payload: ClientPayload {
+                variables: vars_value,
+                query: query.query.to_string(),
+                operation_name: Some(query.operation_name.to_string()),
+            },
+        };
+
+        let sub_info = SubscriptionInfo {
+            uuid,
+            payload,
+            callback,
+        };
+        let sub_info = Rc::new(sub_info);
+        graphql_task.add_subscription(&sub_info);
+
+        if let Ok(graphl_state) = graphql_task.graphql_state.lock() {
+            if graphl_state.is_ready {
+                if let Ok(ws_state) = &graphql_task.ws_state.lock() {
+                    if let Some(ws) = &ws_state.ws {
+                        GraphQLTask::subscribe(ws, &sub_info);
+                    }
+                }
+            }
+        }
+
+        RequestTask {
+            sub_info,
+            ws_state: graphql_task.ws_state.clone(),
+            graphql_state: graphql_task.graphql_state.clone(),
+        }
+    }
+}
+
+pub struct GraphQLService {}
+
+impl GraphQLService {
+    pub fn connect() -> GraphQLTask {
+        let ws_state = Arc::new(Mutex::new(WebSocketState {
+            ws: None,
+            ws_onmessage: None,
+            ws_onerror: None,
+            ws_onclose: None,
+            ws_onopen: None,
+        }));
+
+        let graphql_state = Arc::new(Mutex::new(GraphQLState {
+            is_ready: false,
+            subs: HashMap::new(),
+        }));
+
+        let ping_state = Arc::new(Mutex::new(PingState {
+            on_keep_alive: None,
+            keep_alive_id: 0,
+            last_ping: Instant::now(),
+        }));
+
+        let on_keep_alive: Closure<dyn FnMut(JsValue)> = {
+            let ws_state = ws_state.clone();
+            let graphql_state = graphql_state.clone();
+            let ping_state = ping_state.clone();
+
+            Closure::wrap(Box::new(move |_| {
+                debug!("GraphQLTask: KeepAlive");
+
+                let ping_duration = {
+                    let mut last_ping = Instant::now();
+                    if let Ok(ping_state) = ping_state.lock() {
+                        last_ping = ping_state.last_ping;
+                    }
+                    last_ping.elapsed()
+                };
+
+                if ping_duration > core::time::Duration::from_secs(1000) {
+                    warn!("KEEP_ALIVE: [DEAD] ping: {}", ping_duration.as_millis());
+                    GraphQLTask::setup(ws_state.clone(), graphql_state.clone(), ping_state.clone());
+                } else {
+                    debug!("KEEP_ALIVE: [ALIVE] ping: {}", ping_duration.as_millis());
+                }
+            }) as Box<dyn FnMut(JsValue)>)
+        };
+
+        let keep_alive_id = yew::utils::window()
+            .set_interval_with_callback_and_timeout_and_arguments(
+                on_keep_alive.as_ref().unchecked_ref(),
+                2000,
+                &js_sys::Array::new(),
+            )
+            .unwrap();
+
+        if let Ok(ping_state) = ping_state.lock().as_mut() {
+            ping_state.on_keep_alive = Some(on_keep_alive);
+            ping_state.keep_alive_id = keep_alive_id;
+        };
+
+        let graphl_task = GraphQLTask {
+            is_active: true,
+            ws_state: ws_state.clone(),
+            graphql_state: graphql_state.clone(),
+            ping_state: ping_state.clone(),
+        };
+
+        GraphQLTask::setup(ws_state, graphql_state, ping_state);
+
+        graphl_task
+    }
+}

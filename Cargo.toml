@@ -7,6 +7,8 @@ version = "0.1.0"
 [dependencies]
 anyhow = "1"
 chrono = {version = "0.4", features = ["serde"]}
+gloo-timers = "0.2"
+instant = { version = "0.1", features = [ "wasm-bindgen", "inaccurate" ] }
 geojson = "0.22.0"
 graphql_client = {version = "0.9", features = ["web"]}
 js-sys = "0.3"
@@ -18,8 +20,9 @@ uuid = {version = "0.8", features = ["serde", "v4", "v5", "wasm-bindgen"]}
 wasm-bindgen = {version = "0.2", features = ["serde-serialize"]}
 wasm-bindgen-futures = "0.4"
 wasm-logger = "0.2"
-yew = {version = "0.17", features = ["default", "toml"]}
+yew = {version = "0.18", features = ["default", "toml"]}
 urlencoding = "1.1.1"
+lazy_static = "1.4.0"
 
 [dependencies.web-sys]
 features = [
@@ -33,6 +36,14 @@ features = [
   'DomTokenList',
   'HtmlSelectElement',
   'HtmlDocument',
+  "BinaryType",
+  "Blob",
+  "ErrorEvent",
+  "CloseEvent",
+  "FileReader",
+  "MessageEvent",
+  "ProgressEvent",
+  "WebSocket",
 ]
 optional = true
 version = "0.3"
