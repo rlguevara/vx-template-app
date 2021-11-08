@@ -1,5 +1,7 @@
 #![recursion_limit = "512"]
 
+extern crate lazy_static;
+
 use log::*;
 use test::*;
 use yew::prelude::*;
