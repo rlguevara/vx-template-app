@@ -143,6 +143,8 @@ impl GraphQLTask {
                                     if let Ok(graphql_state) = cloned_graphql_state.lock().as_mut()
                                     {
                                         graphql_state.is_ready = true;
+                                    }
+                                    if let Ok(graphql_state) = cloned_graphql_state.lock() {
                                         for (_, sub_info) in graphql_state.subs.iter() {
                                             if let Some(sub_info) = sub_info.upgrade() {
                                                 GraphQLTask::subscribe(&cloned_ws, &sub_info);
@@ -167,15 +169,17 @@ impl GraphQLTask {
                                 ServerMessage::Next { id, payload } => {
                                     info!("GraphQLTask: Next [Handled] {:?} {:?}", id, payload);
                                     if let Ok(id) = Uuid::parse_str(&*id) {
-                                        if let Ok(graphql_state) =
-                                            cloned_graphql_state.lock().as_mut()
-                                        {
+                                        let mut callback = None;
+                                        if let Ok(graphql_state) = cloned_graphql_state.lock() {
                                             if let Some(sub_info) = graphql_state.subs.get(&id) {
                                                 if let Some(sub_info) = sub_info.upgrade() {
-                                                    if let Some(data) = payload.data {
-                                                        sub_info.callback.emit(data.to_string());
-                                                    }
+                                                    callback = Some(sub_info.callback.clone());
                                                 }
+                                            }
+                                        }
+                                        if let Some(callback) = callback {
+                                            if let Some(data) = payload.data {
+                                                callback.emit(data.to_string());
                                             }
                                         }
                                     }
@@ -464,6 +468,8 @@ pub struct GraphQLService {}
 
 impl GraphQLService {
     pub fn connect() -> GraphQLTask {
+        info!("GraphQLService: Connect");
+
         let ws_state = Arc::new(Mutex::new(WebSocketState {
             ws: None,
             ws_onmessage: None,
