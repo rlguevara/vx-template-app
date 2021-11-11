@@ -1,3 +1,4 @@
+linearosa.patch
 /target
 **/*.rs.bk
 Cargo.lock
