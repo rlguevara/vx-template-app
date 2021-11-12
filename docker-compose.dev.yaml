@@ -4,10 +4,10 @@ services:
     image: postgres:13
     restart: always
     environment: 
-        - DATABASE_HOST=127.0.0.1
-        - POSTGRES_USER=root
-        - POSTGRES_PASSWORD=root
-        - POSTGRES_DB=root  
+        - DATABASE_HOST=${DATABASE_HOST}
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB} 
     ports: 
         - "5432:5432"
     volumes: 
@@ -27,9 +27,9 @@ services:
       - ./odoo/themes:/mnt/themes
       - ./odoo/default:/mnt/addons
     environment:
-      HOST: postgres
-      USER: odoo
-      POSTGRES_PASSWORD: odoo_pg_pass
+      HOST: ${HOST_ODOO}
+      USER: ${USER_ODOO}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_ODOO}
   keycloak:
     image: quay.io/keycloak/keycloak:15.0.2
     ports:
@@ -48,13 +48,13 @@ services:
         source: './keycloak/master-realm.json'
         target: '/tmp/master-realm.json'
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: password
-      KEYCLOAK_USER: keycloak
-      KEYCLOAK_PASSWORD: keycloak
+      DB_VENDOR: ${DB_VENDOR}
+      DB_ADDR: ${DB_ADDR}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_SCHEMA: ${DB_SCHEMA}
+      DB_PASSWORD: ${DB_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
   hasura:
     image: 'hasura/graphql-engine:v2.0.8.cli-migrations-v3'
     ports:
@@ -67,12 +67,12 @@ services:
       - postgres
     restart: always
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://hasura:hasura@postgres:5432/hasura
-      HASURA_GRAPHQL_ENABLE_CONSOLE: 'false'
-      HASURA_GRAPHQL_DEV_MODE: 'true'
-      HASURA_GRAPHQL_ADMIN_SECRET: vx-template-app-access-key
-      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      HASURA_GRAPHQL_JWT_SECRET: '{"type": "HS256", "jwk_url": "http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs"}'
+      HASURA_GRAPHQL_DATABASE_URL: ${HASURA_GRAPHQL_DATABASE_URL}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: ${HASURA_GRAPHQL_ENABLE_CONSOLE}
+      HASURA_GRAPHQL_DEV_MODE: ${HASURA_GRAPHQL_DEV_MODE}
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: ${HASURA_GRAPHQL_ENABLED_LOG_TYPES}
+      HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
   vx-template:
      build:
        context: ./

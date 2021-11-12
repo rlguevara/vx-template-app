@@ -1,4 +1,3 @@
-linearosa.patch
 /target
 **/*.rs.bk
 Cargo.lock
@@ -9,6 +8,7 @@ wasm-pack.log
 node_modules
 .vscode
 .DS_Store
+.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
