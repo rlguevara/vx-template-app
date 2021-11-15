@@ -1,1 +1,22 @@
 # GraphQL Queries
+# GraphQL Queries
+mutation time_add($time: timestamptz!) {
+  insert_test_time_one(object: {time: $time}) {
+    id
+    time
+  }
+}
+
+mutation time_add_default {
+  insert_test_time_one(object: {}) {
+    id
+    time
+  }
+}
+
+subscription on_time_added {
+  test_time(limit: 1, order_by: {id: desc}) {
+    id
+    time
+  }
+}
