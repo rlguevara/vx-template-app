@@ -97,6 +97,19 @@ type mutation_root {
   delete_product_test_by_pk(id: Int!): product_test
 
   """
+  delete data from the table: "test_time"
+  """
+  delete_test_time(
+    """filter the rows which have to be deleted"""
+    where: test_time_bool_exp!
+  ): test_time_mutation_response
+
+  """
+  delete single row from the table: "test_time"
+  """
+  delete_test_time_by_pk(id: Int!): test_time
+
+  """
   insert data into the table: "product_test"
   """
   insert_product_test(
@@ -117,6 +130,28 @@ type mutation_root {
     """on conflict condition"""
     on_conflict: product_test_on_conflict
   ): product_test
+
+  """
+  insert data into the table: "test_time"
+  """
+  insert_test_time(
+    """the rows to be inserted"""
+    objects: [test_time_insert_input!]!
+
+    """on conflict condition"""
+    on_conflict: test_time_on_conflict
+  ): test_time_mutation_response
+
+  """
+  insert a single row into the table: "test_time"
+  """
+  insert_test_time_one(
+    """the row to be inserted"""
+    object: test_time_insert_input!
+
+    """on conflict condition"""
+    on_conflict: test_time_on_conflict
+  ): test_time
 
   """
   update data of the table: "product_test"
@@ -143,6 +178,32 @@ type mutation_root {
     _set: product_test_set_input
     pk_columns: product_test_pk_columns_input!
   ): product_test
+
+  """
+  update data of the table: "test_time"
+  """
+  update_test_time(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: test_time_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: test_time_set_input
+
+    """filter the rows which have to be updated"""
+    where: test_time_bool_exp!
+  ): test_time_mutation_response
+
+  """
+  update single row of the table: "test_time"
+  """
+  update_test_time_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: test_time_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: test_time_set_input
+    pk_columns: test_time_pk_columns_input!
+  ): test_time
 }
 
 """column ordering options"""
@@ -389,6 +450,49 @@ type query_root {
 
   """fetch data from the table: "product_test" using primary key columns"""
   product_test_by_pk(id: Int!): product_test
+
+  """
+  fetch data from the table: "test_time"
+  """
+  test_time(
+    """distinct select on columns"""
+    distinct_on: [test_time_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [test_time_order_by!]
+
+    """filter the rows returned"""
+    where: test_time_bool_exp
+  ): [test_time!]!
+
+  """
+  fetch aggregated fields from the table: "test_time"
+  """
+  test_time_aggregate(
+    """distinct select on columns"""
+    distinct_on: [test_time_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [test_time_order_by!]
+
+    """filter the rows returned"""
+    where: test_time_bool_exp
+  ): test_time_aggregate!
+
+  """fetch data from the table: "test_time" using primary key columns"""
+  test_time_by_pk(id: Int!): test_time
 }
 
 type subscription_root {
@@ -434,5 +538,245 @@ type subscription_root {
 
   """fetch data from the table: "product_test" using primary key columns"""
   product_test_by_pk(id: Int!): product_test
+
+  """
+  fetch data from the table: "test_time"
+  """
+  test_time(
+    """distinct select on columns"""
+    distinct_on: [test_time_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [test_time_order_by!]
+
+    """filter the rows returned"""
+    where: test_time_bool_exp
+  ): [test_time!]!
+
+  """
+  fetch aggregated fields from the table: "test_time"
+  """
+  test_time_aggregate(
+    """distinct select on columns"""
+    distinct_on: [test_time_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [test_time_order_by!]
+
+    """filter the rows returned"""
+    where: test_time_bool_exp
+  ): test_time_aggregate!
+
+  """fetch data from the table: "test_time" using primary key columns"""
+  test_time_by_pk(id: Int!): test_time
+}
+
+"""
+columns and relationships of "test_time"
+"""
+type test_time {
+  id: Int!
+  time: timestamptz!
+}
+
+"""
+aggregated selection of "test_time"
+"""
+type test_time_aggregate {
+  aggregate: test_time_aggregate_fields
+  nodes: [test_time!]!
+}
+
+"""
+aggregate fields of "test_time"
+"""
+type test_time_aggregate_fields {
+  avg: test_time_avg_fields
+  count(columns: [test_time_select_column!], distinct: Boolean): Int!
+  max: test_time_max_fields
+  min: test_time_min_fields
+  stddev: test_time_stddev_fields
+  stddev_pop: test_time_stddev_pop_fields
+  stddev_samp: test_time_stddev_samp_fields
+  sum: test_time_sum_fields
+  var_pop: test_time_var_pop_fields
+  var_samp: test_time_var_samp_fields
+  variance: test_time_variance_fields
+}
+
+"""aggregate avg on columns"""
+type test_time_avg_fields {
+  id: Float
+}
+
+"""
+Boolean expression to filter rows from the table "test_time". All fields are combined with a logical 'AND'.
+"""
+input test_time_bool_exp {
+  _and: [test_time_bool_exp!]
+  _not: test_time_bool_exp
+  _or: [test_time_bool_exp!]
+  id: Int_comparison_exp
+  time: timestamptz_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "test_time"
+"""
+enum test_time_constraint {
+  """unique or primary key constraint"""
+  test_time_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "test_time"
+"""
+input test_time_inc_input {
+  id: Int
+}
+
+"""
+input type for inserting data into table "test_time"
+"""
+input test_time_insert_input {
+  id: Int
+  time: timestamptz
+}
+
+"""aggregate max on columns"""
+type test_time_max_fields {
+  id: Int
+  time: timestamptz
+}
+
+"""aggregate min on columns"""
+type test_time_min_fields {
+  id: Int
+  time: timestamptz
+}
+
+"""
+response of any mutation on the table "test_time"
+"""
+type test_time_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [test_time!]!
+}
+
+"""
+on conflict condition type for table "test_time"
+"""
+input test_time_on_conflict {
+  constraint: test_time_constraint!
+  update_columns: [test_time_update_column!]! = []
+  where: test_time_bool_exp
+}
+
+"""Ordering options when selecting data from "test_time"."""
+input test_time_order_by {
+  id: order_by
+  time: order_by
+}
+
+"""primary key columns input for table: test_time"""
+input test_time_pk_columns_input {
+  id: Int!
+}
+
+"""
+select columns of table "test_time"
+"""
+enum test_time_select_column {
+  """column name"""
+  id
+
+  """column name"""
+  time
+}
+
+"""
+input type for updating data in table "test_time"
+"""
+input test_time_set_input {
+  id: Int
+  time: timestamptz
+}
+
+"""aggregate stddev on columns"""
+type test_time_stddev_fields {
+  id: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type test_time_stddev_pop_fields {
+  id: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type test_time_stddev_samp_fields {
+  id: Float
+}
+
+"""aggregate sum on columns"""
+type test_time_sum_fields {
+  id: Int
+}
+
+"""
+update columns of table "test_time"
+"""
+enum test_time_update_column {
+  """column name"""
+  id
+
+  """column name"""
+  time
+}
+
+"""aggregate var_pop on columns"""
+type test_time_var_pop_fields {
+  id: Float
+}
+
+"""aggregate var_samp on columns"""
+type test_time_var_samp_fields {
+  id: Float
+}
+
+"""aggregate variance on columns"""
+type test_time_variance_fields {
+  id: Float
+}
+
+scalar timestamptz
+
+"""
+Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
+"""
+input timestamptz_comparison_exp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz!]
+  _is_null: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz!]
 }
 
