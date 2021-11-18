@@ -4,6 +4,6 @@ documents:
 extensions:
   endpoints:
     dev:
-      url: https://api.vx-template-app.network/v1/graphql
+      url: ${HASURA_ENDPOINT}
       headers:
-        x-hasura-access-key: vx-template-app-access-key
+        x-hasura-access-key: ${HASURA_GRAPHQL_ADMIN_SECRET}
