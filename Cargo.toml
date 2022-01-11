@@ -20,13 +20,14 @@ uuid = { version = "0.8", features = ["serde", "v4", "v5", "wasm-bindgen"] }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 wasm-logger = "0.2"
-yew = {version = "0.18", features = ["default", "toml"]}
+yew = {version = "0.19"}
 urlencoding = "1.1.1"
 lazy_static = "1.4.0"
 dotenv_codegen = "0.15.0"
 
 
 [dependencies.web-sys]
+version = "0.3"
 features = [
   "Headers",
   "Request",
@@ -47,12 +48,6 @@ features = [
   "ProgressEvent",
   "WebSocket",
 ]
-optional = true
-version = "0.3"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"
-
-[features]
-default = ["web_sys"]
-web_sys = ["web-sys", "yew/web_sys"]

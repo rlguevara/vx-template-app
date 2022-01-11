@@ -13,29 +13,27 @@ mod test;
 #[derive(Debug)]
 enum Message {}
 
-struct Model {
-    _link: ComponentLink<Self>,
-}
+struct Model {}
 
 impl Component for Model {
     type Message = Message;
     type Properties = ();
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { _link: link }
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self {}
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         info!("{:?}", msg);
         true
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        info!("{:?}", props);
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+        info!("{:?}", ctx.props());
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             <TestView />
         }
