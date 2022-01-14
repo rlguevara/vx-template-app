@@ -14,7 +14,7 @@ use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{CloseEvent, ErrorEvent, MessageEvent, WebSocket};
-use yew::{services::Task, Callback, Component, ComponentLink};
+use yew::{Callback, Component, Context};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 enum Headers {
@@ -24,6 +24,11 @@ enum Headers {
         #[serde(skip_serializing_if = "Option::is_none")]
         x_hasura_admin_secret: Option<String>,
     },
+}
+
+pub trait Task: Drop {
+    /// Returns `true` if task is active.
+    fn is_active(&self) -> bool;
 }
 
 struct SubscriptionInfo {
@@ -74,7 +79,9 @@ struct PingState {
 impl Drop for PingState {
     fn drop(&mut self) {
         info!("PingState: Dropped");
-        yew::utils::window().clear_interval_with_handle(self.keep_alive_id);
+        web_sys::window()
+            .expect("Missing Window")
+            .clear_interval_with_handle(self.keep_alive_id);
     }
 }
 
@@ -96,7 +103,9 @@ impl Drop for GraphQLTask {
         info!("GraphQLTask: Dropped");
         if let Ok(ping_state) = self.ping_state.lock().as_mut() {
             ping_state.on_keep_alive = None;
-            yew::utils::window().clear_interval_with_handle(ping_state.keep_alive_id);
+            web_sys::window()
+                .expect("Missing Window")
+                .clear_interval_with_handle(ping_state.keep_alive_id);
         }
     }
 }
@@ -316,7 +325,7 @@ impl Drop for SubscriptionTask {
 pub trait Subscribe {
     fn subscribe<C, M, F>(
         graphql_task: &GraphQLTask,
-        link: &ComponentLink<C>,
+        ctx: &Context<C>,
         vars: Self::Variables,
         on_response: F,
     ) -> SubscriptionTask
@@ -329,7 +338,7 @@ pub trait Subscribe {
         let uuid = Uuid::new_v4();
         let vars_value = serde_json::to_value(&vars).ok();
         let query: QueryBody<Self::Variables> = Self::build_query(vars);
-        let callback: Callback<String> = link.callback(move |json: String| {
+        let callback: Callback<String> = ctx.link().callback(move |json: String| {
             let data: Result<Self::ResponseData, serde_json::Error> = serde_json::from_str(&json);
             on_response(data.ok())
         });
@@ -411,7 +420,7 @@ impl Drop for RequestTask {
 pub trait Request {
     fn request<C, M, F>(
         graphql_task: &GraphQLTask,
-        link: &ComponentLink<C>,
+        ctx: &Context<C>,
         vars: Self::Variables,
         on_response: F,
     ) -> RequestTask
@@ -424,7 +433,7 @@ pub trait Request {
         let uuid = Uuid::new_v4();
         let vars_value = serde_json::to_value(&vars).ok();
         let query: QueryBody<Self::Variables> = Self::build_query(vars);
-        let callback: Callback<String> = link.callback(move |json: String| {
+        let callback: Callback<String> = ctx.link().callback(move |json: String| {
             let data: Result<Self::ResponseData, serde_json::Error> = serde_json::from_str(&json);
             on_response(data.ok())
         });
@@ -514,7 +523,8 @@ impl GraphQLService {
             }) as Box<dyn FnMut(JsValue)>)
         };
 
-        let keep_alive_id = yew::utils::window()
+        let keep_alive_id = web_sys::window()
+            .expect("Missing Window")
             .set_interval_with_callback_and_timeout_and_arguments(
                 on_keep_alive.as_ref().unchecked_ref(),
                 2000,
