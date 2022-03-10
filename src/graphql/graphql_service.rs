@@ -1,5 +1,6 @@
 use super::protocol::*;
 use crate::config::*;
+use code_location::CodeLocation;
 use graphql_client::{GraphQLQuery, QueryBody};
 use instant::Instant;
 use log::*;
@@ -31,25 +32,36 @@ pub trait Task: Drop {
     fn is_active(&self) -> bool;
 }
 
+#[derive(Debug, Serialize)]
+enum SubscriptionAction {
+    Request,
+    Subscribe,
+}
+
+#[derive(Debug, Serialize)]
 struct SubscriptionInfo {
+    operation: String,
     uuid: Uuid,
-    payload: ClientMessage,
+    message: ClientMessage,
+    #[serde(skip_serializing)]
     callback: Callback<String>,
-    // service: ServiceStateHandle,
+    action: SubscriptionAction,
 }
 
 struct GraphQLState {
+    caller: CodeLocation,
     is_ready: bool,
     subs: HashMap<Uuid, Weak<SubscriptionInfo>>,
 }
 
 impl Drop for GraphQLState {
     fn drop(&mut self) {
-        info!("GraphQLState: Dropped")
+        info!("GraphQLState: Dropped: {}", self.caller.file)
     }
 }
 
 struct WebSocketState {
+    caller: CodeLocation,
     ws: Option<WebSocket>,
     ws_onmessage: Option<Closure<dyn FnMut(MessageEvent)>>,
     ws_onerror: Option<Closure<dyn FnMut(ErrorEvent)>>,
@@ -59,17 +71,19 @@ struct WebSocketState {
 
 impl Drop for WebSocketState {
     fn drop(&mut self) {
-        info!("WebSocketState: Dropped");
+        info!("WebSocketState: Dropped: {}", self.caller.file);
         if let Some(ws) = self.ws.as_mut() {
             ws.set_onmessage(None);
             ws.set_onerror(None);
             ws.set_onclose(None);
             ws.set_onopen(None);
+            let _ = ws.close();
         }
     }
 }
 
 struct PingState {
+    caller: CodeLocation,
     #[allow(dead_code)]
     on_keep_alive: Option<Closure<dyn FnMut(JsValue)>>,
     keep_alive_id: i32,
@@ -78,7 +92,7 @@ struct PingState {
 
 impl Drop for PingState {
     fn drop(&mut self) {
-        info!("PingState: Dropped");
+        info!("PingState: Dropped: {}", self.caller.file);
         web_sys::window()
             .expect("Missing Window")
             .clear_interval_with_handle(self.keep_alive_id);
@@ -86,6 +100,7 @@ impl Drop for PingState {
 }
 
 pub struct GraphQLTask {
+    caller: CodeLocation,
     is_active: bool,
     ws_state: Arc<Mutex<WebSocketState>>,
     graphql_state: Arc<Mutex<GraphQLState>>,
@@ -100,7 +115,7 @@ impl Task for GraphQLTask {
 
 impl Drop for GraphQLTask {
     fn drop(&mut self) {
-        info!("GraphQLTask: Dropped");
+        info!("GraphQLTask: Dropped: {}", self.caller.file);
         if let Ok(ping_state) = self.ping_state.lock().as_mut() {
             ping_state.on_keep_alive = None;
             web_sys::window()
@@ -124,6 +139,12 @@ impl GraphQLTask {
         graphql_state: Arc<Mutex<GraphQLState>>,
         ping_state: Arc<Mutex<PingState>>,
     ) {
+        if let Ok(ws_state) = ws_state.lock().as_mut() {
+            if let Some(ws) = &ws_state.ws {
+                let _ = ws.close();
+            }
+        }
+
         let ws = WebSocket::new_with_str(&AUTH_GRAOHQL_WS_ENDPOINT, "graphql-transport-ws").ok();
 
         if let Some(ws) = ws {
@@ -141,7 +162,6 @@ impl GraphQLTask {
                     } else if let Ok(blob) = e.data().dyn_into::<web_sys::Blob>() {
                         warn!("GraphQLTask: OnMessage, received blob: {:?}", blob);
                     } else if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
-                        debug!("GraphQLTask: OnMessage, received Text: {:?}", txt);
                         let msg = serde_json::from_str::<ServerMessage>(
                             txt.as_string().unwrap_or_default().as_str(),
                         );
@@ -164,24 +184,36 @@ impl GraphQLTask {
                                 ServerMessage::Ping => {
                                     debug!("GraphQLTask: Ping [Handled]");
                                     if let Ok(ping_state) = ping_state.lock().as_mut() {
-                                        ping_state.last_ping = Instant::now();
+                                        let now = Instant::now();
+                                        if now - ping_state.last_ping
+                                            > core::time::Duration::from_secs(1)
+                                        {
+                                            let payload = ClientMessage::Pong {};
+                                            let payload =
+                                                serde_json::to_string(&payload).unwrap_or_default();
+                                            let res = cloned_ws.send_with_str(&payload);
+                                            if let Err(err) = res {
+                                                error!("GraphQLTask: {:?}", err);
+                                            }
+                                        }
+                                        ping_state.last_ping = now;
                                     }
-                                    // TODO: Pong is happening too fast, disabling for now
-                                    // let payload = ClientMessage::Pong {};
-                                    // let payload =
-                                    //     serde_json::to_string(&payload).unwrap_or_default();
-                                    // let res = cloned_ws.send_with_str(&payload);
-                                    // if let Err(err) = res {
-                                    //     error!("GraphQLTask: {:?}", err);
-                                    // }
                                 }
                                 ServerMessage::Next { id, payload } => {
-                                    info!("GraphQLTask: Next [Handled] {:?} {:?}", id, payload);
                                     if let Ok(id) = Uuid::parse_str(&*id) {
                                         let mut callback = None;
                                         if let Ok(graphql_state) = cloned_graphql_state.lock() {
                                             if let Some(sub_info) = graphql_state.subs.get(&id) {
                                                 if let Some(sub_info) = sub_info.upgrade() {
+                                                    info!(
+                                                        "GraphQLTask: Next [Handled] {} {:?}",
+                                                        sub_info.operation, id
+                                                    );
+                                                    info!(
+                                                        "{}",
+                                                        serde_json::to_string(&payload)
+                                                            .unwrap_or_default()
+                                                    );
                                                     callback = Some(sub_info.callback.clone());
                                                 }
                                             }
@@ -194,11 +226,18 @@ impl GraphQLTask {
                                     }
                                 }
                                 ServerMessage::Complete { id } => {
-                                    info!("GraphQLTask: Complete [Handled] {:?}", id);
                                     if let Ok(id) = Uuid::parse_str(&*id) {
                                         if let Ok(graphql_state) =
                                             cloned_graphql_state.lock().as_mut()
                                         {
+                                            if let Some(sub_info) = graphql_state.subs.get(&id) {
+                                                if let Some(sub_info) = sub_info.upgrade() {
+                                                    info!(
+                                                        "GraphQLTask: Complete [Handled] {} {:?}",
+                                                        sub_info.operation, id
+                                                    );
+                                                }
+                                            }
                                             graphql_state.subs.remove(&id);
                                         }
                                     }
@@ -254,9 +293,12 @@ impl GraphQLTask {
                 let headers = serde_json::to_value(&msg).ok();
                 let payload = ClientMessage::ConnectionInit { payload: headers };
                 let payload = serde_json::to_string(&payload).unwrap_or_default();
-                info!("GraphQLTask: {:?}", payload);
                 let res = cloned_ws.send_with_str(&payload);
-                info!("GraphQLTask: {:?}", res);
+                if res.is_ok() {
+                    info!("{}", payload);
+                } else {
+                    error!("{}", payload);
+                }
             })
                 as Box<dyn FnMut(JsValue)>);
             ws.set_onopen(Some(ws_onopen.as_ref().unchecked_ref()));
@@ -267,10 +309,14 @@ impl GraphQLTask {
     }
 
     fn subscribe(ws: &WebSocket, sub_info: &SubscriptionInfo) {
-        let msg_str = serde_json::to_string(&sub_info.payload);
+        let msg_str = serde_json::to_string(&sub_info.message);
         match msg_str {
             Ok(msg_str) => {
-                info!("GraphQLTask: Subscribe: {:?}", msg_str);
+                info!(
+                    "GraphQLTask: {:?}: {} {:?}",
+                    sub_info.action, sub_info.operation, sub_info.uuid
+                );
+                info!("{}", serde_json::to_string(sub_info).unwrap_or_default());
                 let res = ws.send_with_str(&msg_str);
                 if let Err(err) = res {
                     error!("GraphQLTask: {:?}", err);
@@ -297,10 +343,18 @@ impl Task for SubscriptionTask {
 
 impl Drop for SubscriptionTask {
     fn drop(&mut self) {
-        info!("SubscriptionTask: Dropped");
         let id = self.sub_info.uuid.to_string();
         let msg = ClientMessage::Complete { id: id.clone() };
         let msg = serde_json::to_string(&msg).unwrap();
+
+        info!(
+            "SubscriptionTask: Dropped: {:?} {:?}",
+            self.sub_info.operation, self.sub_info.uuid
+        );
+        info!(
+            "{}",
+            serde_json::to_string(self.sub_info.as_ref()).unwrap_or_default()
+        );
 
         if let Ok(graphql_state) = self.graphql_state.lock().as_mut() {
             graphql_state.subs.remove(&self.sub_info.uuid);
@@ -353,9 +407,11 @@ pub trait Subscribe {
         };
 
         let sub_info = SubscriptionInfo {
+            operation: query.operation_name.to_string(),
             uuid,
-            payload,
+            message: payload,
             callback,
+            action: SubscriptionAction::Subscribe,
         };
         let sub_info = Rc::new(sub_info);
         graphql_task.add_subscription(&sub_info);
@@ -392,10 +448,18 @@ impl Task for RequestTask {
 
 impl Drop for RequestTask {
     fn drop(&mut self) {
-        info!("RequestTask: Dropped");
         let id = self.sub_info.uuid.to_string();
         let msg = ClientMessage::Complete { id: id.clone() };
         let msg = serde_json::to_string(&msg).unwrap();
+
+        info!(
+            "RequestTask: Dropped: {:?} {:?}",
+            self.sub_info.operation, self.sub_info.uuid
+        );
+        info!(
+            "{}",
+            serde_json::to_string(self.sub_info.as_ref()).unwrap_or_default()
+        );
 
         if let Ok(graphql_state) = self.graphql_state.lock().as_mut() {
             graphql_state.subs.remove(&self.sub_info.uuid);
@@ -413,6 +477,8 @@ impl Drop for RequestTask {
                     warn!("RequestTask: Invalid WebSocket");
                 }
             }
+        } else {
+            warn!("RequestTask: Invalid WebSocket");
         }
     }
 }
@@ -442,15 +508,17 @@ pub trait Request {
             id: uuid.to_string(),
             payload: ClientPayload {
                 variables: vars_value,
-                query: query.query.to_string(),
+                query: query.query.to_owned(),
                 operation_name: Some(query.operation_name.to_string()),
             },
         };
 
         let sub_info = SubscriptionInfo {
+            operation: query.operation_name.to_string(),
             uuid,
-            payload,
+            message: payload,
             callback,
+            action: SubscriptionAction::Request,
         };
         let sub_info = Rc::new(sub_info);
         graphql_task.add_subscription(&sub_info);
@@ -476,10 +544,11 @@ pub trait Request {
 pub struct GraphQLService {}
 
 impl GraphQLService {
-    pub fn connect() -> GraphQLTask {
-        info!("GraphQLService: Connect");
+    pub fn connect(caller: &CodeLocation) -> GraphQLTask {
+        info!("GraphQLService: Connect: {}", caller.file);
 
         let ws_state = Arc::new(Mutex::new(WebSocketState {
+            caller: caller.clone(),
             ws: None,
             ws_onmessage: None,
             ws_onerror: None,
@@ -488,11 +557,13 @@ impl GraphQLService {
         }));
 
         let graphql_state = Arc::new(Mutex::new(GraphQLState {
+            caller: caller.clone(),
             is_ready: false,
             subs: HashMap::new(),
         }));
 
         let ping_state = Arc::new(Mutex::new(PingState {
+            caller: caller.clone(),
             on_keep_alive: None,
             keep_alive_id: 0,
             last_ping: Instant::now(),
@@ -514,11 +585,17 @@ impl GraphQLService {
                     last_ping.elapsed()
                 };
 
-                if ping_duration > core::time::Duration::from_secs(1000) {
-                    warn!("KEEP_ALIVE: [DEAD] ping: {}", ping_duration.as_millis());
+                if ping_duration > core::time::Duration::from_secs(10) {
+                    warn!(
+                        "GraphQLTask: KeepAlive [DEAD] ping: {}",
+                        ping_duration.as_millis()
+                    );
                     GraphQLTask::setup(ws_state.clone(), graphql_state.clone(), ping_state.clone());
                 } else {
-                    debug!("KEEP_ALIVE: [ALIVE] ping: {}", ping_duration.as_millis());
+                    debug!(
+                        "GraphQLTask: KeepAlive [ALIVE] ping: {}",
+                        ping_duration.as_millis()
+                    );
                 }
             }) as Box<dyn FnMut(JsValue)>)
         };
@@ -538,6 +615,7 @@ impl GraphQLService {
         };
 
         let graphl_task = GraphQLTask {
+            caller: caller.clone(),
             is_active: true,
             ws_state: ws_state.clone(),
             graphql_state: graphql_state.clone(),

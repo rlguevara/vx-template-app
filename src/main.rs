@@ -7,7 +7,7 @@ use test::*;
 use yew::prelude::*;
 
 mod config;
-pub mod hasura;
+pub mod graphql;
 mod test;
 
 #[derive(Debug)]

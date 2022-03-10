@@ -1,6 +1,6 @@
-use crate::hasura;
-use graphql_client::GraphQLQuery;
+use crate::graphql;
 use chrono::prelude::*;
+use graphql_client::GraphQLQuery;
 
 pub type Timestamptz = String;
 
@@ -20,7 +20,7 @@ pub fn wasm_utc_now() -> DateTime<chrono::Utc> {
     normalization = "rust"
 )]
 pub struct TimeAdd;
-impl hasura::Request for TimeAdd {}
+impl graphql::Request for TimeAdd {}
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -30,4 +30,4 @@ impl hasura::Request for TimeAdd {}
     normalization = "rust"
 )]
 pub struct OnTimeAdded;
-impl hasura::Subscribe for OnTimeAdded {}
+impl graphql::Subscribe for OnTimeAdded {}
