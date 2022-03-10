@@ -1,7 +1,8 @@
 use super::model::*;
-use crate::hasura::{
+use crate::graphql::{
     GraphQLService, GraphQLTask, Request, RequestTask, Subscribe, SubscriptionTask,
 };
+use code_location::code_location;
 use log::*;
 use yew::prelude::*;
 
@@ -55,7 +56,7 @@ impl Component for TestView {
                 info!("OnTimeAdded: {:?}", data)
             }
             Self::Message::SubscriptionEnable => {
-                self.graphql_task = Some(GraphQLService::connect())
+                self.graphql_task = Some(GraphQLService::connect(&code_location!()))
             }
             Self::Message::SubscriptionDisable => self.graphql_task = None,
             Self::Message::Subscribe => {
