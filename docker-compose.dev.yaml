@@ -75,13 +75,6 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: "startup, http-log, webhook-log, websocket-log, query-log"
       HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
-  vx-template:
-     build:
-       context: ./
-       dockerfile: Dockerfile.dev
-     ports:
-       - 80
-     restart: unless-stopped
 volumes:
   odoo_web_data:
   postgres_data:

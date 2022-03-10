@@ -1,82 +1,86 @@
 # Vx Template App
 
-## Install [Rust](https://www.rust-lang.org/)
+## Software Requirements
 
-### Using [Rustup](https://rustup.rs/)
+- Install [Rust](https://www.rust-lang.org/). Using [Rustup](https://rustup.rs/)
 Run the following in your terminal, then follow the onscreen instructions:
-
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-## Install  Trunk
+- Install trunk and wasm-bindgen-cli
 ```
 cargo install --locked trunk
 cargo install wasm-bindgen-cli
 ```
-
-## Update Schema
-
-In order to run update_schema.sh locally you will need to go to the file and uncomment the line below
-
-```
-#source '.env'  
-```
-
-## Serve locally
-```
-trunk serve
-```
-
-## Setup with Docker
 
 - Install [Docker](https://docs.docker.com/engine/install/ubuntu)
 
 - Install [Docker-Compose](https://docs.docker.com/compose/install)
 
 - Install [Hasura CLI](https://hasura.io/docs/latest/graphql/core/hasura-cli/install-hasura-cli.html)
-
 ```
 $ curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | VERSION=v2.0.8 bash
 ```
-
 or the one that is being used in the docker-compose file. You can also update by running
-
 ```
 $ hasura update-cli --version v2.0.8
 ```
 
-### Usage
+## Developer Setup
 
-- Clone the project
-
+1. Clone the project
 ```
 $ git clone git@github.com:VertexStudio/vx-template-app
 ```
 
-- Copy the environment file as **.env**
-
+2. Copy the environment file as **.env**
 ```
 $ cp .env.example .env
 ```
 
-- Run the development environment with docker-compose
-
+3. Run the development environment with docker-compose
 ```
 $ docker-compose -f docker-compose.dev.yaml up -d
 ```
-- Run the production environment with docker-compose
 
+4. Update schema.graphql
+```bash
+# Uncomment in the update_schema.sh
+#source '.env'
+# Make the update_schema.sh executable
+chmod +x update_schema.sh
+# Run it
+./update_schema.sh
+```
+
+5. Serve the Rust app with trunk
+```
+trunk serve
+```
+
+### Run the Dockerfile of the Rust app
+
+- Run the production environment with docker-compose instead of the development environment (Replaces Step 3)
 ```
 $ docker-compose up -d
 ```
 
-- Docker settings
+## Services
+
+| Service Name                | Description                                       | URL                              |
+| --------------------------- | ------------------------------------------------  | -------------------------------- |
+| vx-template                 | Template app with Rust (Yew Framework)            | http://localhost:8080            |
+| Hasura GraphQL              | Instant GraphQL on all your data (API)            | http://localhost:8079            |
+| Keycloak                    | Open Source Identity and Access Management (Auth) | http://localhost:8078            |
+| Odoo                        | Business Platform (ERP)                           | http://localhost:8069            |
+| PostgreSQL                  | Powerful, open source object-relational database  | http://localhost:5432 (Dev only) |
+
+## Docker settings
 
 After creating the services containers using Docker Compose:
 In order to make the Keycloak data persistent in the assigned volume for the Postgres service, you need to stop the containers, set the command in the
 Docker-compose file, then start the containers again.
-
 ```
 '-Dkeycloak.migration.strategy=IGNORE_EXISTING'
 ```
@@ -85,6 +89,9 @@ Docker-compose file, then start the containers again.
 
 - Default environment file: **.env**
 - Example environment file: **.env.example**
+
+<details>
+<summary>Environment variables [Table]</summary>
 
 | Variable Name               | Description                             |
 | --------------------------- | --------------------------------------- |
@@ -108,3 +115,5 @@ Docker-compose file, then start the containers again.
 | HASURA_GRAPHQL_ADMIN_SECRET | Hasura GraphQL Admin Secret             |
 | KEYCLOAK_PUBLIC_KEY         | Keycloak RS256 public key               |
 | HASURA_GRAPHQL_JWT_SECRET   | JWT secret key                          |
+
+</details>
