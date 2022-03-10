@@ -4,9 +4,9 @@
         <record id="provider_keycloak" model="auth.oauth.provider">
             <field name="name">Keycloak OAuth</field>
             <field name="client_id">odoo</field>
-            <field name="auth_endpoint">http://172.17.0.1:8080/auth/realms/master/protocol/openid-connect/auth</field>
+            <field name="auth_endpoint">http://172.17.0.1:8078/auth/realms/master/protocol/openid-connect/auth</field>
             <field name="scope">profile</field>
-            <field name="validation_endpoint">http://172.17.0.1:8080/auth/realms/master/protocol/openid-connect/userinfo</field>
+            <field name="validation_endpoint">http://172.17.0.1:8078/auth/realms/master/protocol/openid-connect/userinfo</field>
             <field name="data_endpoint"></field>
             <field name="css_class">fa fa-fw fa-key</field>
             <field name="body">Log in with Keycloak</field>
