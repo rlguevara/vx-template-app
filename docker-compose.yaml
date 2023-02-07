@@ -13,24 +13,6 @@ services:
     volumes: 
         - postgres_data:/var/lib/postgresql/data
         - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-  odoo:
-    image: odoo:14.0
-    ports:
-      - 8069:8069
-    depends_on:
-      - postgres
-    restart: always
-    command: '-- -d postgres -i base,auth_oauth,auth_oauth_keycloak'
-    volumes:
-      - odoo_web_data:/var/lib/odoo
-      - ./odoo/config:/etc/odoo
-      - ./odoo/addons:/mnt/extra-addons
-      - ./odoo/themes:/mnt/themes
-      - ./odoo/default:/mnt/addons
-    environment:
-      HOST: ${HOST_ODOO}
-      USER: ${USER_ODOO}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_ODOO}
   keycloak:
     image: quay.io/keycloak/keycloak:15.0.2
     ports:

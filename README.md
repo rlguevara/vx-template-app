@@ -73,7 +73,6 @@ $ docker-compose up -d
 | vx-template                 | Template app with Rust (Yew Framework)            | http://localhost:8080            |
 | Hasura GraphQL              | Instant GraphQL on all your data (API)            | http://localhost:8079            |
 | Keycloak                    | Open Source Identity and Access Management (Auth) | http://localhost:8078            |
-| Odoo                        | Business Platform (ERP)                           | http://localhost:8069            |
 | PostgreSQL                  | Powerful, open source object-relational database  | http://localhost:5432 (Dev only) |
 
 ## Docker settings
@@ -101,9 +100,6 @@ Docker-compose file, then start the containers again.
 | POSTGRES_USER               | Postgres default user                   |
 | POSTGRES_PASSWORD           | Postgres default password               |
 | POSTGRES_DB                 | Postgres default database name          |
-| HOST_ODOO                   | Address of postgres server for Odoo     |
-| USER_ODOO                   | Odoo postgres username                  |
-| POSTGRES_PASSWORD_ODOO      | Odoo postgres password                  |
 | DB_VENDOR                   | Database management vendor              |
 | DB_ADDR                     | Address of postgres server for Keycloak |
 | DB_DATABASE                 | Keycloak postgres database name         |
