@@ -65,5 +65,4 @@ services:
        - 80
      restart: unless-stopped
 volumes:
-  odoo_web_data:
   postgres_data:
