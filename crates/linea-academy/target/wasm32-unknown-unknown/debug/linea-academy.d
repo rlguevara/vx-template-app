@@ -1,0 +1,1 @@
+/home/rosa/Documents/Work/My\ repo/vx-template-app/crates/linea-academy/target/wasm32-unknown-unknown/debug/linea-academy.wasm: /home/rosa/Documents/Work/My\ repo/vx-template-app/crates/linea-academy/src/main.rs

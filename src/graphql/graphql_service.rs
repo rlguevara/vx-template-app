@@ -27,9 +27,13 @@ enum Headers {
     },
 }
 
-pub trait Task: Drop {
+pub trait Task {
     /// Returns `true` if task is active.
     fn is_active(&self) -> bool;
+
+    fn needs_drop(&self) -> bool {
+        std::mem::needs_drop::<Self>()
+    }
 }
 
 #[derive(Debug, Serialize)]

@@ -28,7 +28,7 @@ impl Component for Model {
         true
     }
 
-    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+    fn changed(&mut self, ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         info!("{:?}", ctx.props());
         true
     }
@@ -42,5 +42,5 @@ impl Component for Model {
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::new(log::Level::Info));
-    yew::start_app::<Model>();
+    yew::Renderer::<Model>::new().render();
 }
