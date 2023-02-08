@@ -4,50 +4,8 @@ edition = "2018"
 name = "vx-template-app"
 version = "0.1.0"
 
-[dependencies]
-anyhow = "1"
-chrono = {version = "0.4", features = ["serde"]}
-gloo-timers = "0.2"
-instant = { version = "0.1", features = [ "wasm-bindgen", "inaccurate" ] }
-geojson = "0.22.0"
-graphql_client = { version = "0.9", features = ["web"] }
-js-sys = "0.3"
-log = "0.4"
-serde = { version = "1", features = ["derive"] }
-serde_derive = "1"
-serde_json = "1"
-uuid = { version = "0.8", features = ["serde", "v4", "v5", "wasm-bindgen"] }
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-wasm-bindgen-futures = "0.4"
-wasm-logger = "0.2"
-yew = { version = "0.20", features = ["csr"] }
-urlencoding = "1.1.1"
-lazy_static = "1.4.0"
-dotenv_codegen = "0.15.0"
-code_location = {version = "1.1", features = ["serde"]}
-
-[dependencies.web-sys]
-version = "0.3"
-features = [
-  "Headers",
-  "Request",
-  "RequestInit",
-  "RequestMode",
-  "Response",
-  "Window",
-  "Element",
-  "DomTokenList",
-  "HtmlSelectElement",
-  "HtmlDocument",
-  "BinaryType",
-  "Blob",
-  "ErrorEvent",
-  "CloseEvent",
-  "FileReader",
-  "MessageEvent",
-  "ProgressEvent",
-  "WebSocket",
+[workspace]
+members = [
+  "crates/*",
+  "crates/linea-academy"
 ]
-
-[dev-dependencies]
-wasm-bindgen-test = "0.2"
