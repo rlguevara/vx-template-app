@@ -39,7 +39,7 @@ services:
       KEYCLOAK_USER: ${KEYCLOAK_USER}
       KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
   hasura:
-    image: 'hasura/graphql-engine:v2.3.0.cli-migrations-v3'
+    image: 'hasura/graphql-engine:v2.8.1.cli-migrations-v3'
     ports:
       - '8079:8080'
     volumes:

@@ -116,7 +116,7 @@ type mutation_root {
     """the rows to be inserted"""
     objects: [product_test_insert_input!]!
 
-    """on conflict condition"""
+    """upsert condition"""
     on_conflict: product_test_on_conflict
   ): product_test_mutation_response
 
@@ -127,7 +127,7 @@ type mutation_root {
     """the row to be inserted"""
     object: product_test_insert_input!
 
-    """on conflict condition"""
+    """upsert condition"""
     on_conflict: product_test_on_conflict
   ): product_test
 
@@ -138,7 +138,7 @@ type mutation_root {
     """the rows to be inserted"""
     objects: [test_time_insert_input!]!
 
-    """on conflict condition"""
+    """upsert condition"""
     on_conflict: test_time_on_conflict
   ): test_time_mutation_response
 
@@ -149,7 +149,7 @@ type mutation_root {
     """the row to be inserted"""
     object: test_time_insert_input!
 
-    """on conflict condition"""
+    """upsert condition"""
     on_conflict: test_time_on_conflict
   ): test_time
 
@@ -323,7 +323,7 @@ type product_test_mutation_response {
 }
 
 """
-on conflict condition type for table "product_test"
+on_conflict condition type for table "product_test"
 """
 input product_test_on_conflict {
   constraint: product_test_constraint!
@@ -679,7 +679,7 @@ type test_time_mutation_response {
 }
 
 """
-on conflict condition type for table "test_time"
+on_conflict condition type for table "test_time"
 """
 input test_time_on_conflict {
   constraint: test_time_constraint!
