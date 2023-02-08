@@ -14,8 +14,8 @@ pub fn wasm_utc_now() -> DateTime<chrono::Utc> {
 
 #[derive(GraphQLQuery)]
 #[graphql(
-    schema_path = "schema.graphql",
-    query_path = "query.graphql",
+    schema_path = "../../schema.graphql",
+    query_path = "../../query.graphql",
     response_derives = "Debug, Clone",
     normalization = "rust"
 )]
@@ -24,8 +24,8 @@ impl graphql::Request for TimeAdd {}
 
 #[derive(GraphQLQuery)]
 #[graphql(
-    schema_path = "schema.graphql",
-    query_path = "query.graphql",
+    schema_path = "../../schema.graphql",
+    query_path = "../../query.graphql",
     response_derives = "Debug, Clone",
     normalization = "rust"
 )]
