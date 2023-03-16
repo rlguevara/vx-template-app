@@ -20,3 +20,33 @@ subscription on_time_added {
     time
   }
 }
+
+query time_data {
+  test_time {
+    id
+    time
+  }
+}
+
+query category_data {
+  category {
+    id
+    description
+    name
+  }
+}
+
+mutation AddCategory($id: Int = 10, $name: String!, $description: String!) {
+  insert_category_one (object: {id: $id, name: $name, description: $description}) {
+    name
+    description
+  }
+}
+
+query course_by_category($id: Int = 10) {
+  course_by_pk(id: $id) {
+    id
+    name
+    description
+  }
+}

@@ -29,5 +29,16 @@ impl graphql::Request for TimeAdd {}
     response_derives = "Debug, Clone",
     normalization = "rust"
 )]
+pub struct TimeData;
+impl graphql::Request for TimeData {}
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "../../schema.graphql",
+    query_path = "../../query.graphql",
+    response_derives = "Debug, Clone",
+    normalization = "rust"
+)]
 pub struct OnTimeAdded;
 impl graphql::Subscribe for OnTimeAdded {}
+

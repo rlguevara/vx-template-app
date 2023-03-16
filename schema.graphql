@@ -13,10 +13,15 @@ directive @cached(
   refresh: Boolean! = false
 ) on QUERY
 
+input Int_cast_exp {
+  String: String_comparison_exp
+}
+
 """
 Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
 """
 input Int_comparison_exp {
+  _cast: Int_cast_exp
   _eq: Int
   _gt: Int
   _gte: Int
@@ -81,8 +86,645 @@ input String_comparison_exp {
   _similar: String
 }
 
+"""
+columns and relationships of "category"
+"""
+type category {
+  description: String!
+  id: Int!
+  name: String!
+}
+
+"""
+aggregated selection of "category"
+"""
+type category_aggregate {
+  aggregate: category_aggregate_fields
+  nodes: [category!]!
+}
+
+"""
+aggregate fields of "category"
+"""
+type category_aggregate_fields {
+  avg: category_avg_fields
+  count(columns: [category_select_column!], distinct: Boolean): Int!
+  max: category_max_fields
+  min: category_min_fields
+  stddev: category_stddev_fields
+  stddev_pop: category_stddev_pop_fields
+  stddev_samp: category_stddev_samp_fields
+  sum: category_sum_fields
+  var_pop: category_var_pop_fields
+  var_samp: category_var_samp_fields
+  variance: category_variance_fields
+}
+
+"""aggregate avg on columns"""
+type category_avg_fields {
+  id: Float
+}
+
+"""
+Boolean expression to filter rows from the table "category". All fields are combined with a logical 'AND'.
+"""
+input category_bool_exp {
+  _and: [category_bool_exp!]
+  _not: category_bool_exp
+  _or: [category_bool_exp!]
+  description: String_comparison_exp
+  id: Int_comparison_exp
+  name: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "category"
+"""
+enum category_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  category_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "category"
+"""
+input category_inc_input {
+  id: Int
+}
+
+"""
+input type for inserting data into table "category"
+"""
+input category_insert_input {
+  description: String
+  id: Int
+  name: String
+}
+
+"""aggregate max on columns"""
+type category_max_fields {
+  description: String
+  id: Int
+  name: String
+}
+
+"""aggregate min on columns"""
+type category_min_fields {
+  description: String
+  id: Int
+  name: String
+}
+
+"""
+response of any mutation on the table "category"
+"""
+type category_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [category!]!
+}
+
+"""
+on_conflict condition type for table "category"
+"""
+input category_on_conflict {
+  constraint: category_constraint!
+  update_columns: [category_update_column!]! = []
+  where: category_bool_exp
+}
+
+"""Ordering options when selecting data from "category"."""
+input category_order_by {
+  description: order_by
+  id: order_by
+  name: order_by
+}
+
+"""primary key columns input for table: category"""
+input category_pk_columns_input {
+  id: Int!
+}
+
+"""
+select columns of table "category"
+"""
+enum category_select_column {
+  """column name"""
+  description
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+}
+
+"""
+input type for updating data in table "category"
+"""
+input category_set_input {
+  description: String
+  id: Int
+  name: String
+}
+
+"""aggregate stddev on columns"""
+type category_stddev_fields {
+  id: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type category_stddev_pop_fields {
+  id: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type category_stddev_samp_fields {
+  id: Float
+}
+
+"""aggregate sum on columns"""
+type category_sum_fields {
+  id: Int
+}
+
+"""
+update columns of table "category"
+"""
+enum category_update_column {
+  """column name"""
+  description
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+}
+
+"""aggregate var_pop on columns"""
+type category_var_pop_fields {
+  id: Float
+}
+
+"""aggregate var_samp on columns"""
+type category_var_samp_fields {
+  id: Float
+}
+
+"""aggregate variance on columns"""
+type category_variance_fields {
+  id: Float
+}
+
+"""
+columns and relationships of "course"
+"""
+type course {
+  description: String!
+  id: Int!
+  name: String!
+}
+
+"""
+aggregated selection of "course"
+"""
+type course_aggregate {
+  aggregate: course_aggregate_fields
+  nodes: [course!]!
+}
+
+"""
+aggregate fields of "course"
+"""
+type course_aggregate_fields {
+  avg: course_avg_fields
+  count(columns: [course_select_column!], distinct: Boolean): Int!
+  max: course_max_fields
+  min: course_min_fields
+  stddev: course_stddev_fields
+  stddev_pop: course_stddev_pop_fields
+  stddev_samp: course_stddev_samp_fields
+  sum: course_sum_fields
+  var_pop: course_var_pop_fields
+  var_samp: course_var_samp_fields
+  variance: course_variance_fields
+}
+
+"""aggregate avg on columns"""
+type course_avg_fields {
+  id: Float
+}
+
+"""
+Boolean expression to filter rows from the table "course". All fields are combined with a logical 'AND'.
+"""
+input course_bool_exp {
+  _and: [course_bool_exp!]
+  _not: course_bool_exp
+  _or: [course_bool_exp!]
+  description: String_comparison_exp
+  id: Int_comparison_exp
+  name: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "course"
+"""
+enum course_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  course_pkey
+}
+
+"""
+columns and relationships of "course_content"
+"""
+type course_content {
+  content_type: String!
+  id: Int!
+  name: String!
+  url: String!
+}
+
+"""
+aggregated selection of "course_content"
+"""
+type course_content_aggregate {
+  aggregate: course_content_aggregate_fields
+  nodes: [course_content!]!
+}
+
+"""
+aggregate fields of "course_content"
+"""
+type course_content_aggregate_fields {
+  avg: course_content_avg_fields
+  count(columns: [course_content_select_column!], distinct: Boolean): Int!
+  max: course_content_max_fields
+  min: course_content_min_fields
+  stddev: course_content_stddev_fields
+  stddev_pop: course_content_stddev_pop_fields
+  stddev_samp: course_content_stddev_samp_fields
+  sum: course_content_sum_fields
+  var_pop: course_content_var_pop_fields
+  var_samp: course_content_var_samp_fields
+  variance: course_content_variance_fields
+}
+
+"""aggregate avg on columns"""
+type course_content_avg_fields {
+  id: Float
+}
+
+"""
+Boolean expression to filter rows from the table "course_content". All fields are combined with a logical 'AND'.
+"""
+input course_content_bool_exp {
+  _and: [course_content_bool_exp!]
+  _not: course_content_bool_exp
+  _or: [course_content_bool_exp!]
+  content_type: String_comparison_exp
+  id: Int_comparison_exp
+  name: String_comparison_exp
+  url: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "course_content"
+"""
+enum course_content_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  course_content_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "course_content"
+"""
+input course_content_inc_input {
+  id: Int
+}
+
+"""
+input type for inserting data into table "course_content"
+"""
+input course_content_insert_input {
+  content_type: String
+  id: Int
+  name: String
+  url: String
+}
+
+"""aggregate max on columns"""
+type course_content_max_fields {
+  content_type: String
+  id: Int
+  name: String
+  url: String
+}
+
+"""aggregate min on columns"""
+type course_content_min_fields {
+  content_type: String
+  id: Int
+  name: String
+  url: String
+}
+
+"""
+response of any mutation on the table "course_content"
+"""
+type course_content_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [course_content!]!
+}
+
+"""
+on_conflict condition type for table "course_content"
+"""
+input course_content_on_conflict {
+  constraint: course_content_constraint!
+  update_columns: [course_content_update_column!]! = []
+  where: course_content_bool_exp
+}
+
+"""Ordering options when selecting data from "course_content"."""
+input course_content_order_by {
+  content_type: order_by
+  id: order_by
+  name: order_by
+  url: order_by
+}
+
+"""primary key columns input for table: course_content"""
+input course_content_pk_columns_input {
+  id: Int!
+}
+
+"""
+select columns of table "course_content"
+"""
+enum course_content_select_column {
+  """column name"""
+  content_type
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+
+  """column name"""
+  url
+}
+
+"""
+input type for updating data in table "course_content"
+"""
+input course_content_set_input {
+  content_type: String
+  id: Int
+  name: String
+  url: String
+}
+
+"""aggregate stddev on columns"""
+type course_content_stddev_fields {
+  id: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type course_content_stddev_pop_fields {
+  id: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type course_content_stddev_samp_fields {
+  id: Float
+}
+
+"""aggregate sum on columns"""
+type course_content_sum_fields {
+  id: Int
+}
+
+"""
+update columns of table "course_content"
+"""
+enum course_content_update_column {
+  """column name"""
+  content_type
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+
+  """column name"""
+  url
+}
+
+"""aggregate var_pop on columns"""
+type course_content_var_pop_fields {
+  id: Float
+}
+
+"""aggregate var_samp on columns"""
+type course_content_var_samp_fields {
+  id: Float
+}
+
+"""aggregate variance on columns"""
+type course_content_variance_fields {
+  id: Float
+}
+
+"""
+input type for incrementing numeric columns in table "course"
+"""
+input course_inc_input {
+  id: Int
+}
+
+"""
+input type for inserting data into table "course"
+"""
+input course_insert_input {
+  description: String
+  id: Int
+  name: String
+}
+
+"""aggregate max on columns"""
+type course_max_fields {
+  description: String
+  id: Int
+  name: String
+}
+
+"""aggregate min on columns"""
+type course_min_fields {
+  description: String
+  id: Int
+  name: String
+}
+
+"""
+response of any mutation on the table "course"
+"""
+type course_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [course!]!
+}
+
+"""
+on_conflict condition type for table "course"
+"""
+input course_on_conflict {
+  constraint: course_constraint!
+  update_columns: [course_update_column!]! = []
+  where: course_bool_exp
+}
+
+"""Ordering options when selecting data from "course"."""
+input course_order_by {
+  description: order_by
+  id: order_by
+  name: order_by
+}
+
+"""primary key columns input for table: course"""
+input course_pk_columns_input {
+  id: Int!
+}
+
+"""
+select columns of table "course"
+"""
+enum course_select_column {
+  """column name"""
+  description
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+}
+
+"""
+input type for updating data in table "course"
+"""
+input course_set_input {
+  description: String
+  id: Int
+  name: String
+}
+
+"""aggregate stddev on columns"""
+type course_stddev_fields {
+  id: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type course_stddev_pop_fields {
+  id: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type course_stddev_samp_fields {
+  id: Float
+}
+
+"""aggregate sum on columns"""
+type course_sum_fields {
+  id: Int
+}
+
+"""
+update columns of table "course"
+"""
+enum course_update_column {
+  """column name"""
+  description
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+}
+
+"""aggregate var_pop on columns"""
+type course_var_pop_fields {
+  id: Float
+}
+
+"""aggregate var_samp on columns"""
+type course_var_samp_fields {
+  id: Float
+}
+
+"""aggregate variance on columns"""
+type course_variance_fields {
+  id: Float
+}
+
 """mutation root"""
 type mutation_root {
+  """
+  delete data from the table: "category"
+  """
+  delete_category(
+    """filter the rows which have to be deleted"""
+    where: category_bool_exp!
+  ): category_mutation_response
+
+  """
+  delete single row from the table: "category"
+  """
+  delete_category_by_pk(id: Int!): category
+
+  """
+  delete data from the table: "course"
+  """
+  delete_course(
+    """filter the rows which have to be deleted"""
+    where: course_bool_exp!
+  ): course_mutation_response
+
+  """
+  delete single row from the table: "course"
+  """
+  delete_course_by_pk(id: Int!): course
+
+  """
+  delete data from the table: "course_content"
+  """
+  delete_course_content(
+    """filter the rows which have to be deleted"""
+    where: course_content_bool_exp!
+  ): course_content_mutation_response
+
+  """
+  delete single row from the table: "course_content"
+  """
+  delete_course_content_by_pk(id: Int!): course_content
+
   """
   delete data from the table: "product_test"
   """
@@ -108,6 +750,72 @@ type mutation_root {
   delete single row from the table: "test_time"
   """
   delete_test_time_by_pk(id: Int!): test_time
+
+  """
+  insert data into the table: "category"
+  """
+  insert_category(
+    """the rows to be inserted"""
+    objects: [category_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: category_on_conflict
+  ): category_mutation_response
+
+  """
+  insert a single row into the table: "category"
+  """
+  insert_category_one(
+    """the row to be inserted"""
+    object: category_insert_input!
+
+    """upsert condition"""
+    on_conflict: category_on_conflict
+  ): category
+
+  """
+  insert data into the table: "course"
+  """
+  insert_course(
+    """the rows to be inserted"""
+    objects: [course_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: course_on_conflict
+  ): course_mutation_response
+
+  """
+  insert data into the table: "course_content"
+  """
+  insert_course_content(
+    """the rows to be inserted"""
+    objects: [course_content_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: course_content_on_conflict
+  ): course_content_mutation_response
+
+  """
+  insert a single row into the table: "course_content"
+  """
+  insert_course_content_one(
+    """the row to be inserted"""
+    object: course_content_insert_input!
+
+    """upsert condition"""
+    on_conflict: course_content_on_conflict
+  ): course_content
+
+  """
+  insert a single row into the table: "course"
+  """
+  insert_course_one(
+    """the row to be inserted"""
+    object: course_insert_input!
+
+    """upsert condition"""
+    on_conflict: course_on_conflict
+  ): course
 
   """
   insert data into the table: "product_test"
@@ -152,6 +860,84 @@ type mutation_root {
     """upsert condition"""
     on_conflict: test_time_on_conflict
   ): test_time
+
+  """
+  update data of the table: "category"
+  """
+  update_category(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: category_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: category_set_input
+
+    """filter the rows which have to be updated"""
+    where: category_bool_exp!
+  ): category_mutation_response
+
+  """
+  update single row of the table: "category"
+  """
+  update_category_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: category_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: category_set_input
+    pk_columns: category_pk_columns_input!
+  ): category
+
+  """
+  update data of the table: "course"
+  """
+  update_course(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: course_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: course_set_input
+
+    """filter the rows which have to be updated"""
+    where: course_bool_exp!
+  ): course_mutation_response
+
+  """
+  update single row of the table: "course"
+  """
+  update_course_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: course_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: course_set_input
+    pk_columns: course_pk_columns_input!
+  ): course
+
+  """
+  update data of the table: "course_content"
+  """
+  update_course_content(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: course_content_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: course_content_set_input
+
+    """filter the rows which have to be updated"""
+    where: course_content_bool_exp!
+  ): course_content_mutation_response
+
+  """
+  update single row of the table: "course_content"
+  """
+  update_course_content_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: course_content_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: course_content_set_input
+    pk_columns: course_content_pk_columns_input!
+  ): course_content
 
   """
   update data of the table: "product_test"
@@ -280,7 +1066,9 @@ input product_test_bool_exp {
 unique or primary key constraints on table "product_test"
 """
 enum product_test_constraint {
-  """unique or primary key constraint"""
+  """
+  unique or primary key constraint on columns "id"
+  """
   product_test_pkey
 }
 
@@ -409,6 +1197,135 @@ type product_test_variance_fields {
 
 type query_root {
   """
+  fetch data from the table: "category"
+  """
+  category(
+    """distinct select on columns"""
+    distinct_on: [category_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [category_order_by!]
+
+    """filter the rows returned"""
+    where: category_bool_exp
+  ): [category!]!
+
+  """
+  fetch aggregated fields from the table: "category"
+  """
+  category_aggregate(
+    """distinct select on columns"""
+    distinct_on: [category_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [category_order_by!]
+
+    """filter the rows returned"""
+    where: category_bool_exp
+  ): category_aggregate!
+
+  """fetch data from the table: "category" using primary key columns"""
+  category_by_pk(id: Int!): category
+
+  """
+  fetch data from the table: "course"
+  """
+  course(
+    """distinct select on columns"""
+    distinct_on: [course_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_order_by!]
+
+    """filter the rows returned"""
+    where: course_bool_exp
+  ): [course!]!
+
+  """
+  fetch aggregated fields from the table: "course"
+  """
+  course_aggregate(
+    """distinct select on columns"""
+    distinct_on: [course_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_order_by!]
+
+    """filter the rows returned"""
+    where: course_bool_exp
+  ): course_aggregate!
+
+  """fetch data from the table: "course" using primary key columns"""
+  course_by_pk(id: Int!): course
+
+  """
+  fetch data from the table: "course_content"
+  """
+  course_content(
+    """distinct select on columns"""
+    distinct_on: [course_content_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_content_order_by!]
+
+    """filter the rows returned"""
+    where: course_content_bool_exp
+  ): [course_content!]!
+
+  """
+  fetch aggregated fields from the table: "course_content"
+  """
+  course_content_aggregate(
+    """distinct select on columns"""
+    distinct_on: [course_content_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_content_order_by!]
+
+    """filter the rows returned"""
+    where: course_content_bool_exp
+  ): course_content_aggregate!
+
+  """fetch data from the table: "course_content" using primary key columns"""
+  course_content_by_pk(id: Int!): course_content
+
+  """
   fetch data from the table: "product_test"
   """
   product_test(
@@ -496,6 +1413,135 @@ type query_root {
 }
 
 type subscription_root {
+  """
+  fetch data from the table: "category"
+  """
+  category(
+    """distinct select on columns"""
+    distinct_on: [category_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [category_order_by!]
+
+    """filter the rows returned"""
+    where: category_bool_exp
+  ): [category!]!
+
+  """
+  fetch aggregated fields from the table: "category"
+  """
+  category_aggregate(
+    """distinct select on columns"""
+    distinct_on: [category_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [category_order_by!]
+
+    """filter the rows returned"""
+    where: category_bool_exp
+  ): category_aggregate!
+
+  """fetch data from the table: "category" using primary key columns"""
+  category_by_pk(id: Int!): category
+
+  """
+  fetch data from the table: "course"
+  """
+  course(
+    """distinct select on columns"""
+    distinct_on: [course_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_order_by!]
+
+    """filter the rows returned"""
+    where: course_bool_exp
+  ): [course!]!
+
+  """
+  fetch aggregated fields from the table: "course"
+  """
+  course_aggregate(
+    """distinct select on columns"""
+    distinct_on: [course_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_order_by!]
+
+    """filter the rows returned"""
+    where: course_bool_exp
+  ): course_aggregate!
+
+  """fetch data from the table: "course" using primary key columns"""
+  course_by_pk(id: Int!): course
+
+  """
+  fetch data from the table: "course_content"
+  """
+  course_content(
+    """distinct select on columns"""
+    distinct_on: [course_content_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_content_order_by!]
+
+    """filter the rows returned"""
+    where: course_content_bool_exp
+  ): [course_content!]!
+
+  """
+  fetch aggregated fields from the table: "course_content"
+  """
+  course_content_aggregate(
+    """distinct select on columns"""
+    distinct_on: [course_content_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [course_content_order_by!]
+
+    """filter the rows returned"""
+    where: course_content_bool_exp
+  ): course_content_aggregate!
+
+  """fetch data from the table: "course_content" using primary key columns"""
+  course_content_by_pk(id: Int!): course_content
+
   """
   fetch data from the table: "product_test"
   """
@@ -636,7 +1682,9 @@ input test_time_bool_exp {
 unique or primary key constraints on table "test_time"
 """
 enum test_time_constraint {
-  """unique or primary key constraint"""
+  """
+  unique or primary key constraint on columns "id"
+  """
   test_time_pkey
 }
 
@@ -765,10 +1813,15 @@ type test_time_variance_fields {
 
 scalar timestamptz
 
+input timestamptz_cast_exp {
+  String: String_comparison_exp
+}
+
 """
 Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
 """
 input timestamptz_comparison_exp {
+  _cast: timestamptz_cast_exp
   _eq: timestamptz
   _gt: timestamptz
   _gte: timestamptz
