@@ -1,4 +1,6 @@
 use yew::prelude::*;
+use yew_router::prelude::*;
+// use crate::components::router::{switch, Route};
 
 #[function_component(Header)]
 pub fn header() -> Html {
@@ -21,6 +23,9 @@ pub fn header() -> Html {
                                 <li class="scroll-to-section"><a href="#team">{"Team"}</a></li>
                                 // <li class="scroll-to-section"><a href="#events">{"Events"}</a></li>
                                 <li class="scroll-to-section"><a href="#contact">{"Contact us"}</a></li>
+                                // <BrowserRouter>
+                                //     <Switch<Route> render={switch}/>
+                                // </BrowserRouter>
                             </ul>   
                             <a class="menu-trigger">
                                 <span>{"Menu"}</span>

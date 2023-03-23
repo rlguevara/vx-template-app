@@ -87,643 +87,936 @@ input String_comparison_exp {
 }
 
 """
-columns and relationships of "category"
+columns and relationships of "lr_academy_category"
 """
-type category {
-  description: String!
+type lr_academy_category {
+  category_description: String!
+  category_image_url: String!
+  category_name: String!
   id: Int!
-  name: String!
+
+  """An array relationship"""
+  lr_academy_courses(
+    """distinct select on columns"""
+    distinct_on: [lr_academy_course_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [lr_academy_course_order_by!]
+
+    """filter the rows returned"""
+    where: lr_academy_course_bool_exp
+  ): [lr_academy_course!]!
+
+  """An aggregate relationship"""
+  lr_academy_courses_aggregate(
+    """distinct select on columns"""
+    distinct_on: [lr_academy_course_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [lr_academy_course_order_by!]
+
+    """filter the rows returned"""
+    where: lr_academy_course_bool_exp
+  ): lr_academy_course_aggregate!
 }
 
 """
-aggregated selection of "category"
+aggregated selection of "lr_academy_category"
 """
-type category_aggregate {
-  aggregate: category_aggregate_fields
-  nodes: [category!]!
+type lr_academy_category_aggregate {
+  aggregate: lr_academy_category_aggregate_fields
+  nodes: [lr_academy_category!]!
 }
 
 """
-aggregate fields of "category"
+aggregate fields of "lr_academy_category"
 """
-type category_aggregate_fields {
-  avg: category_avg_fields
-  count(columns: [category_select_column!], distinct: Boolean): Int!
-  max: category_max_fields
-  min: category_min_fields
-  stddev: category_stddev_fields
-  stddev_pop: category_stddev_pop_fields
-  stddev_samp: category_stddev_samp_fields
-  sum: category_sum_fields
-  var_pop: category_var_pop_fields
-  var_samp: category_var_samp_fields
-  variance: category_variance_fields
+type lr_academy_category_aggregate_fields {
+  avg: lr_academy_category_avg_fields
+  count(columns: [lr_academy_category_select_column!], distinct: Boolean): Int!
+  max: lr_academy_category_max_fields
+  min: lr_academy_category_min_fields
+  stddev: lr_academy_category_stddev_fields
+  stddev_pop: lr_academy_category_stddev_pop_fields
+  stddev_samp: lr_academy_category_stddev_samp_fields
+  sum: lr_academy_category_sum_fields
+  var_pop: lr_academy_category_var_pop_fields
+  var_samp: lr_academy_category_var_samp_fields
+  variance: lr_academy_category_variance_fields
 }
 
 """aggregate avg on columns"""
-type category_avg_fields {
+type lr_academy_category_avg_fields {
   id: Float
 }
 
 """
-Boolean expression to filter rows from the table "category". All fields are combined with a logical 'AND'.
+Boolean expression to filter rows from the table "lr_academy_category". All fields are combined with a logical 'AND'.
 """
-input category_bool_exp {
-  _and: [category_bool_exp!]
-  _not: category_bool_exp
-  _or: [category_bool_exp!]
-  description: String_comparison_exp
+input lr_academy_category_bool_exp {
+  _and: [lr_academy_category_bool_exp!]
+  _not: lr_academy_category_bool_exp
+  _or: [lr_academy_category_bool_exp!]
+  category_description: String_comparison_exp
+  category_image_url: String_comparison_exp
+  category_name: String_comparison_exp
   id: Int_comparison_exp
-  name: String_comparison_exp
+  lr_academy_courses: lr_academy_course_bool_exp
 }
 
 """
-unique or primary key constraints on table "category"
+unique or primary key constraints on table "lr_academy_category"
 """
-enum category_constraint {
+enum lr_academy_category_constraint {
+  """
+  unique or primary key constraint on columns "category_name"
+  """
+  lr_academy_category_category_name_key
+
   """
   unique or primary key constraint on columns "id"
   """
-  category_pkey
+  lr_academy_category_pkey
 }
 
 """
-input type for incrementing numeric columns in table "category"
+input type for incrementing numeric columns in table "lr_academy_category"
 """
-input category_inc_input {
+input lr_academy_category_inc_input {
   id: Int
 }
 
 """
-input type for inserting data into table "category"
+input type for inserting data into table "lr_academy_category"
 """
-input category_insert_input {
-  description: String
+input lr_academy_category_insert_input {
+  category_description: String
+  category_image_url: String
+  category_name: String
   id: Int
-  name: String
+  lr_academy_courses: lr_academy_course_arr_rel_insert_input
 }
 
 """aggregate max on columns"""
-type category_max_fields {
-  description: String
+type lr_academy_category_max_fields {
+  category_description: String
+  category_image_url: String
+  category_name: String
   id: Int
-  name: String
 }
 
 """aggregate min on columns"""
-type category_min_fields {
-  description: String
+type lr_academy_category_min_fields {
+  category_description: String
+  category_image_url: String
+  category_name: String
   id: Int
-  name: String
 }
 
 """
-response of any mutation on the table "category"
+response of any mutation on the table "lr_academy_category"
 """
-type category_mutation_response {
+type lr_academy_category_mutation_response {
   """number of rows affected by the mutation"""
   affected_rows: Int!
 
   """data from the rows affected by the mutation"""
-  returning: [category!]!
+  returning: [lr_academy_category!]!
 }
 
 """
-on_conflict condition type for table "category"
+input type for inserting object relation for remote table "lr_academy_category"
 """
-input category_on_conflict {
-  constraint: category_constraint!
-  update_columns: [category_update_column!]! = []
-  where: category_bool_exp
+input lr_academy_category_obj_rel_insert_input {
+  data: lr_academy_category_insert_input!
+
+  """upsert condition"""
+  on_conflict: lr_academy_category_on_conflict
 }
 
-"""Ordering options when selecting data from "category"."""
-input category_order_by {
-  description: order_by
+"""
+on_conflict condition type for table "lr_academy_category"
+"""
+input lr_academy_category_on_conflict {
+  constraint: lr_academy_category_constraint!
+  update_columns: [lr_academy_category_update_column!]! = []
+  where: lr_academy_category_bool_exp
+}
+
+"""Ordering options when selecting data from "lr_academy_category"."""
+input lr_academy_category_order_by {
+  category_description: order_by
+  category_image_url: order_by
+  category_name: order_by
   id: order_by
-  name: order_by
+  lr_academy_courses_aggregate: lr_academy_course_aggregate_order_by
 }
 
-"""primary key columns input for table: category"""
-input category_pk_columns_input {
+"""primary key columns input for table: lr_academy_category"""
+input lr_academy_category_pk_columns_input {
   id: Int!
 }
 
 """
-select columns of table "category"
+select columns of table "lr_academy_category"
 """
-enum category_select_column {
+enum lr_academy_category_select_column {
   """column name"""
-  description
+  category_description
+
+  """column name"""
+  category_image_url
+
+  """column name"""
+  category_name
 
   """column name"""
   id
-
-  """column name"""
-  name
 }
 
 """
-input type for updating data in table "category"
+input type for updating data in table "lr_academy_category"
 """
-input category_set_input {
-  description: String
+input lr_academy_category_set_input {
+  category_description: String
+  category_image_url: String
+  category_name: String
   id: Int
-  name: String
 }
 
 """aggregate stddev on columns"""
-type category_stddev_fields {
+type lr_academy_category_stddev_fields {
   id: Float
 }
 
 """aggregate stddev_pop on columns"""
-type category_stddev_pop_fields {
+type lr_academy_category_stddev_pop_fields {
   id: Float
 }
 
 """aggregate stddev_samp on columns"""
-type category_stddev_samp_fields {
+type lr_academy_category_stddev_samp_fields {
   id: Float
 }
 
 """aggregate sum on columns"""
-type category_sum_fields {
+type lr_academy_category_sum_fields {
   id: Int
 }
 
 """
-update columns of table "category"
+update columns of table "lr_academy_category"
 """
-enum category_update_column {
+enum lr_academy_category_update_column {
   """column name"""
-  description
+  category_description
+
+  """column name"""
+  category_image_url
+
+  """column name"""
+  category_name
 
   """column name"""
   id
-
-  """column name"""
-  name
 }
 
 """aggregate var_pop on columns"""
-type category_var_pop_fields {
+type lr_academy_category_var_pop_fields {
   id: Float
 }
 
 """aggregate var_samp on columns"""
-type category_var_samp_fields {
+type lr_academy_category_var_samp_fields {
   id: Float
 }
 
 """aggregate variance on columns"""
-type category_variance_fields {
+type lr_academy_category_variance_fields {
   id: Float
 }
 
 """
-columns and relationships of "course"
+columns and relationships of "lr_academy_course"
 """
-type course {
-  description: String!
+type lr_academy_course {
+  category_id: Int!
+  course_description: String!
+  course_image_url: String!
+  course_name: String!
   id: Int!
-  name: String!
+
+  """An object relationship"""
+  lr_academy_category: lr_academy_category!
+
+  """An object relationship"""
+  lr_academy_course_content: lr_academy_course_content
 }
 
 """
-aggregated selection of "course"
+aggregated selection of "lr_academy_course"
 """
-type course_aggregate {
-  aggregate: course_aggregate_fields
-  nodes: [course!]!
+type lr_academy_course_aggregate {
+  aggregate: lr_academy_course_aggregate_fields
+  nodes: [lr_academy_course!]!
 }
 
 """
-aggregate fields of "course"
+aggregate fields of "lr_academy_course"
 """
-type course_aggregate_fields {
-  avg: course_avg_fields
-  count(columns: [course_select_column!], distinct: Boolean): Int!
-  max: course_max_fields
-  min: course_min_fields
-  stddev: course_stddev_fields
-  stddev_pop: course_stddev_pop_fields
-  stddev_samp: course_stddev_samp_fields
-  sum: course_sum_fields
-  var_pop: course_var_pop_fields
-  var_samp: course_var_samp_fields
-  variance: course_variance_fields
+type lr_academy_course_aggregate_fields {
+  avg: lr_academy_course_avg_fields
+  count(columns: [lr_academy_course_select_column!], distinct: Boolean): Int!
+  max: lr_academy_course_max_fields
+  min: lr_academy_course_min_fields
+  stddev: lr_academy_course_stddev_fields
+  stddev_pop: lr_academy_course_stddev_pop_fields
+  stddev_samp: lr_academy_course_stddev_samp_fields
+  sum: lr_academy_course_sum_fields
+  var_pop: lr_academy_course_var_pop_fields
+  var_samp: lr_academy_course_var_samp_fields
+  variance: lr_academy_course_variance_fields
+}
+
+"""
+order by aggregate values of table "lr_academy_course"
+"""
+input lr_academy_course_aggregate_order_by {
+  avg: lr_academy_course_avg_order_by
+  count: order_by
+  max: lr_academy_course_max_order_by
+  min: lr_academy_course_min_order_by
+  stddev: lr_academy_course_stddev_order_by
+  stddev_pop: lr_academy_course_stddev_pop_order_by
+  stddev_samp: lr_academy_course_stddev_samp_order_by
+  sum: lr_academy_course_sum_order_by
+  var_pop: lr_academy_course_var_pop_order_by
+  var_samp: lr_academy_course_var_samp_order_by
+  variance: lr_academy_course_variance_order_by
+}
+
+"""
+input type for inserting array relation for remote table "lr_academy_course"
+"""
+input lr_academy_course_arr_rel_insert_input {
+  data: [lr_academy_course_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: lr_academy_course_on_conflict
 }
 
 """aggregate avg on columns"""
-type course_avg_fields {
+type lr_academy_course_avg_fields {
+  category_id: Float
   id: Float
 }
 
 """
-Boolean expression to filter rows from the table "course". All fields are combined with a logical 'AND'.
+order by avg() on columns of table "lr_academy_course"
 """
-input course_bool_exp {
-  _and: [course_bool_exp!]
-  _not: course_bool_exp
-  _or: [course_bool_exp!]
-  description: String_comparison_exp
-  id: Int_comparison_exp
-  name: String_comparison_exp
+input lr_academy_course_avg_order_by {
+  category_id: order_by
+  id: order_by
 }
 
 """
-unique or primary key constraints on table "course"
+Boolean expression to filter rows from the table "lr_academy_course". All fields are combined with a logical 'AND'.
 """
-enum course_constraint {
+input lr_academy_course_bool_exp {
+  _and: [lr_academy_course_bool_exp!]
+  _not: lr_academy_course_bool_exp
+  _or: [lr_academy_course_bool_exp!]
+  category_id: Int_comparison_exp
+  course_description: String_comparison_exp
+  course_image_url: String_comparison_exp
+  course_name: String_comparison_exp
+  id: Int_comparison_exp
+  lr_academy_category: lr_academy_category_bool_exp
+  lr_academy_course_content: lr_academy_course_content_bool_exp
+}
+
+"""
+unique or primary key constraints on table "lr_academy_course"
+"""
+enum lr_academy_course_constraint {
+  """
+  unique or primary key constraint on columns "course_name"
+  """
+  lr_academy_course_course_name_key
+
   """
   unique or primary key constraint on columns "id"
   """
-  course_pkey
+  lr_academy_course_pkey
 }
 
 """
-columns and relationships of "course_content"
+columns and relationships of "lr_academy_course_content"
 """
-type course_content {
+type lr_academy_course_content {
+  content_description: String!
+  content_name: String!
   content_type: String!
+  content_url: String!
+  course_id: Int!
   id: Int!
-  name: String!
-  url: String!
+
+  """An object relationship"""
+  lr_academy_course: lr_academy_course!
 }
 
 """
-aggregated selection of "course_content"
+aggregated selection of "lr_academy_course_content"
 """
-type course_content_aggregate {
-  aggregate: course_content_aggregate_fields
-  nodes: [course_content!]!
+type lr_academy_course_content_aggregate {
+  aggregate: lr_academy_course_content_aggregate_fields
+  nodes: [lr_academy_course_content!]!
 }
 
 """
-aggregate fields of "course_content"
+aggregate fields of "lr_academy_course_content"
 """
-type course_content_aggregate_fields {
-  avg: course_content_avg_fields
-  count(columns: [course_content_select_column!], distinct: Boolean): Int!
-  max: course_content_max_fields
-  min: course_content_min_fields
-  stddev: course_content_stddev_fields
-  stddev_pop: course_content_stddev_pop_fields
-  stddev_samp: course_content_stddev_samp_fields
-  sum: course_content_sum_fields
-  var_pop: course_content_var_pop_fields
-  var_samp: course_content_var_samp_fields
-  variance: course_content_variance_fields
+type lr_academy_course_content_aggregate_fields {
+  avg: lr_academy_course_content_avg_fields
+  count(columns: [lr_academy_course_content_select_column!], distinct: Boolean): Int!
+  max: lr_academy_course_content_max_fields
+  min: lr_academy_course_content_min_fields
+  stddev: lr_academy_course_content_stddev_fields
+  stddev_pop: lr_academy_course_content_stddev_pop_fields
+  stddev_samp: lr_academy_course_content_stddev_samp_fields
+  sum: lr_academy_course_content_sum_fields
+  var_pop: lr_academy_course_content_var_pop_fields
+  var_samp: lr_academy_course_content_var_samp_fields
+  variance: lr_academy_course_content_variance_fields
 }
 
 """aggregate avg on columns"""
-type course_content_avg_fields {
+type lr_academy_course_content_avg_fields {
+  course_id: Float
   id: Float
 }
 
 """
-Boolean expression to filter rows from the table "course_content". All fields are combined with a logical 'AND'.
+Boolean expression to filter rows from the table "lr_academy_course_content". All fields are combined with a logical 'AND'.
 """
-input course_content_bool_exp {
-  _and: [course_content_bool_exp!]
-  _not: course_content_bool_exp
-  _or: [course_content_bool_exp!]
+input lr_academy_course_content_bool_exp {
+  _and: [lr_academy_course_content_bool_exp!]
+  _not: lr_academy_course_content_bool_exp
+  _or: [lr_academy_course_content_bool_exp!]
+  content_description: String_comparison_exp
+  content_name: String_comparison_exp
   content_type: String_comparison_exp
+  content_url: String_comparison_exp
+  course_id: Int_comparison_exp
   id: Int_comparison_exp
-  name: String_comparison_exp
-  url: String_comparison_exp
+  lr_academy_course: lr_academy_course_bool_exp
 }
 
 """
-unique or primary key constraints on table "course_content"
+unique or primary key constraints on table "lr_academy_course_content"
 """
-enum course_content_constraint {
+enum lr_academy_course_content_constraint {
   """
   unique or primary key constraint on columns "id"
   """
-  course_content_pkey
+  lr_academy_course_content_pkey
 }
 
 """
-input type for incrementing numeric columns in table "course_content"
+input type for incrementing numeric columns in table "lr_academy_course_content"
 """
-input course_content_inc_input {
+input lr_academy_course_content_inc_input {
+  course_id: Int
   id: Int
 }
 
 """
-input type for inserting data into table "course_content"
+input type for inserting data into table "lr_academy_course_content"
 """
-input course_content_insert_input {
+input lr_academy_course_content_insert_input {
+  content_description: String
+  content_name: String
   content_type: String
+  content_url: String
+  course_id: Int
   id: Int
-  name: String
-  url: String
+  lr_academy_course: lr_academy_course_obj_rel_insert_input
 }
 
 """aggregate max on columns"""
-type course_content_max_fields {
+type lr_academy_course_content_max_fields {
+  content_description: String
+  content_name: String
   content_type: String
+  content_url: String
+  course_id: Int
   id: Int
-  name: String
-  url: String
 }
 
 """aggregate min on columns"""
-type course_content_min_fields {
+type lr_academy_course_content_min_fields {
+  content_description: String
+  content_name: String
   content_type: String
+  content_url: String
+  course_id: Int
   id: Int
-  name: String
-  url: String
 }
 
 """
-response of any mutation on the table "course_content"
+response of any mutation on the table "lr_academy_course_content"
 """
-type course_content_mutation_response {
+type lr_academy_course_content_mutation_response {
   """number of rows affected by the mutation"""
   affected_rows: Int!
 
   """data from the rows affected by the mutation"""
-  returning: [course_content!]!
+  returning: [lr_academy_course_content!]!
 }
 
 """
-on_conflict condition type for table "course_content"
+input type for inserting object relation for remote table "lr_academy_course_content"
 """
-input course_content_on_conflict {
-  constraint: course_content_constraint!
-  update_columns: [course_content_update_column!]! = []
-  where: course_content_bool_exp
+input lr_academy_course_content_obj_rel_insert_input {
+  data: lr_academy_course_content_insert_input!
+
+  """upsert condition"""
+  on_conflict: lr_academy_course_content_on_conflict
 }
 
-"""Ordering options when selecting data from "course_content"."""
-input course_content_order_by {
+"""
+on_conflict condition type for table "lr_academy_course_content"
+"""
+input lr_academy_course_content_on_conflict {
+  constraint: lr_academy_course_content_constraint!
+  update_columns: [lr_academy_course_content_update_column!]! = []
+  where: lr_academy_course_content_bool_exp
+}
+
+"""Ordering options when selecting data from "lr_academy_course_content"."""
+input lr_academy_course_content_order_by {
+  content_description: order_by
+  content_name: order_by
   content_type: order_by
+  content_url: order_by
+  course_id: order_by
   id: order_by
-  name: order_by
-  url: order_by
+  lr_academy_course: lr_academy_course_order_by
 }
 
-"""primary key columns input for table: course_content"""
-input course_content_pk_columns_input {
+"""primary key columns input for table: lr_academy_course_content"""
+input lr_academy_course_content_pk_columns_input {
   id: Int!
 }
 
 """
-select columns of table "course_content"
+select columns of table "lr_academy_course_content"
 """
-enum course_content_select_column {
+enum lr_academy_course_content_select_column {
+  """column name"""
+  content_description
+
+  """column name"""
+  content_name
+
   """column name"""
   content_type
 
   """column name"""
+  content_url
+
+  """column name"""
+  course_id
+
+  """column name"""
   id
-
-  """column name"""
-  name
-
-  """column name"""
-  url
 }
 
 """
-input type for updating data in table "course_content"
+input type for updating data in table "lr_academy_course_content"
 """
-input course_content_set_input {
+input lr_academy_course_content_set_input {
+  content_description: String
+  content_name: String
   content_type: String
+  content_url: String
+  course_id: Int
   id: Int
-  name: String
-  url: String
 }
 
 """aggregate stddev on columns"""
-type course_content_stddev_fields {
+type lr_academy_course_content_stddev_fields {
+  course_id: Float
   id: Float
 }
 
 """aggregate stddev_pop on columns"""
-type course_content_stddev_pop_fields {
+type lr_academy_course_content_stddev_pop_fields {
+  course_id: Float
   id: Float
 }
 
 """aggregate stddev_samp on columns"""
-type course_content_stddev_samp_fields {
+type lr_academy_course_content_stddev_samp_fields {
+  course_id: Float
   id: Float
 }
 
 """aggregate sum on columns"""
-type course_content_sum_fields {
+type lr_academy_course_content_sum_fields {
+  course_id: Int
   id: Int
 }
 
 """
-update columns of table "course_content"
+update columns of table "lr_academy_course_content"
 """
-enum course_content_update_column {
+enum lr_academy_course_content_update_column {
+  """column name"""
+  content_description
+
+  """column name"""
+  content_name
+
   """column name"""
   content_type
 
   """column name"""
+  content_url
+
+  """column name"""
+  course_id
+
+  """column name"""
   id
-
-  """column name"""
-  name
-
-  """column name"""
-  url
 }
 
 """aggregate var_pop on columns"""
-type course_content_var_pop_fields {
+type lr_academy_course_content_var_pop_fields {
+  course_id: Float
   id: Float
 }
 
 """aggregate var_samp on columns"""
-type course_content_var_samp_fields {
+type lr_academy_course_content_var_samp_fields {
+  course_id: Float
   id: Float
 }
 
 """aggregate variance on columns"""
-type course_content_variance_fields {
+type lr_academy_course_content_variance_fields {
+  course_id: Float
   id: Float
 }
 
 """
-input type for incrementing numeric columns in table "course"
+input type for incrementing numeric columns in table "lr_academy_course"
 """
-input course_inc_input {
+input lr_academy_course_inc_input {
+  category_id: Int
   id: Int
 }
 
 """
-input type for inserting data into table "course"
+input type for inserting data into table "lr_academy_course"
 """
-input course_insert_input {
-  description: String
+input lr_academy_course_insert_input {
+  category_id: Int
+  course_description: String
+  course_image_url: String
+  course_name: String
   id: Int
-  name: String
+  lr_academy_category: lr_academy_category_obj_rel_insert_input
+  lr_academy_course_content: lr_academy_course_content_obj_rel_insert_input
 }
 
 """aggregate max on columns"""
-type course_max_fields {
-  description: String
+type lr_academy_course_max_fields {
+  category_id: Int
+  course_description: String
+  course_image_url: String
+  course_name: String
   id: Int
-  name: String
+}
+
+"""
+order by max() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_max_order_by {
+  category_id: order_by
+  course_description: order_by
+  course_image_url: order_by
+  course_name: order_by
+  id: order_by
 }
 
 """aggregate min on columns"""
-type course_min_fields {
-  description: String
+type lr_academy_course_min_fields {
+  category_id: Int
+  course_description: String
+  course_image_url: String
+  course_name: String
   id: Int
-  name: String
 }
 
 """
-response of any mutation on the table "course"
+order by min() on columns of table "lr_academy_course"
 """
-type course_mutation_response {
+input lr_academy_course_min_order_by {
+  category_id: order_by
+  course_description: order_by
+  course_image_url: order_by
+  course_name: order_by
+  id: order_by
+}
+
+"""
+response of any mutation on the table "lr_academy_course"
+"""
+type lr_academy_course_mutation_response {
   """number of rows affected by the mutation"""
   affected_rows: Int!
 
   """data from the rows affected by the mutation"""
-  returning: [course!]!
+  returning: [lr_academy_course!]!
 }
 
 """
-on_conflict condition type for table "course"
+input type for inserting object relation for remote table "lr_academy_course"
 """
-input course_on_conflict {
-  constraint: course_constraint!
-  update_columns: [course_update_column!]! = []
-  where: course_bool_exp
+input lr_academy_course_obj_rel_insert_input {
+  data: lr_academy_course_insert_input!
+
+  """upsert condition"""
+  on_conflict: lr_academy_course_on_conflict
 }
 
-"""Ordering options when selecting data from "course"."""
-input course_order_by {
-  description: order_by
+"""
+on_conflict condition type for table "lr_academy_course"
+"""
+input lr_academy_course_on_conflict {
+  constraint: lr_academy_course_constraint!
+  update_columns: [lr_academy_course_update_column!]! = []
+  where: lr_academy_course_bool_exp
+}
+
+"""Ordering options when selecting data from "lr_academy_course"."""
+input lr_academy_course_order_by {
+  category_id: order_by
+  course_description: order_by
+  course_image_url: order_by
+  course_name: order_by
   id: order_by
-  name: order_by
+  lr_academy_category: lr_academy_category_order_by
+  lr_academy_course_content: lr_academy_course_content_order_by
 }
 
-"""primary key columns input for table: course"""
-input course_pk_columns_input {
+"""primary key columns input for table: lr_academy_course"""
+input lr_academy_course_pk_columns_input {
   id: Int!
 }
 
 """
-select columns of table "course"
+select columns of table "lr_academy_course"
 """
-enum course_select_column {
+enum lr_academy_course_select_column {
   """column name"""
-  description
+  category_id
+
+  """column name"""
+  course_description
+
+  """column name"""
+  course_image_url
+
+  """column name"""
+  course_name
 
   """column name"""
   id
-
-  """column name"""
-  name
 }
 
 """
-input type for updating data in table "course"
+input type for updating data in table "lr_academy_course"
 """
-input course_set_input {
-  description: String
+input lr_academy_course_set_input {
+  category_id: Int
+  course_description: String
+  course_image_url: String
+  course_name: String
   id: Int
-  name: String
 }
 
 """aggregate stddev on columns"""
-type course_stddev_fields {
+type lr_academy_course_stddev_fields {
+  category_id: Float
   id: Float
+}
+
+"""
+order by stddev() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_stddev_order_by {
+  category_id: order_by
+  id: order_by
 }
 
 """aggregate stddev_pop on columns"""
-type course_stddev_pop_fields {
+type lr_academy_course_stddev_pop_fields {
+  category_id: Float
   id: Float
+}
+
+"""
+order by stddev_pop() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_stddev_pop_order_by {
+  category_id: order_by
+  id: order_by
 }
 
 """aggregate stddev_samp on columns"""
-type course_stddev_samp_fields {
+type lr_academy_course_stddev_samp_fields {
+  category_id: Float
   id: Float
 }
 
+"""
+order by stddev_samp() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_stddev_samp_order_by {
+  category_id: order_by
+  id: order_by
+}
+
 """aggregate sum on columns"""
-type course_sum_fields {
+type lr_academy_course_sum_fields {
+  category_id: Int
   id: Int
 }
 
 """
-update columns of table "course"
+order by sum() on columns of table "lr_academy_course"
 """
-enum course_update_column {
+input lr_academy_course_sum_order_by {
+  category_id: order_by
+  id: order_by
+}
+
+"""
+update columns of table "lr_academy_course"
+"""
+enum lr_academy_course_update_column {
   """column name"""
-  description
+  category_id
+
+  """column name"""
+  course_description
+
+  """column name"""
+  course_image_url
+
+  """column name"""
+  course_name
 
   """column name"""
   id
-
-  """column name"""
-  name
 }
 
 """aggregate var_pop on columns"""
-type course_var_pop_fields {
+type lr_academy_course_var_pop_fields {
+  category_id: Float
   id: Float
+}
+
+"""
+order by var_pop() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_var_pop_order_by {
+  category_id: order_by
+  id: order_by
 }
 
 """aggregate var_samp on columns"""
-type course_var_samp_fields {
+type lr_academy_course_var_samp_fields {
+  category_id: Float
   id: Float
 }
 
+"""
+order by var_samp() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_var_samp_order_by {
+  category_id: order_by
+  id: order_by
+}
+
 """aggregate variance on columns"""
-type course_variance_fields {
+type lr_academy_course_variance_fields {
+  category_id: Float
   id: Float
+}
+
+"""
+order by variance() on columns of table "lr_academy_course"
+"""
+input lr_academy_course_variance_order_by {
+  category_id: order_by
+  id: order_by
 }
 
 """mutation root"""
 type mutation_root {
   """
-  delete data from the table: "category"
+  delete data from the table: "lr_academy_category"
   """
-  delete_category(
+  delete_lr_academy_category(
     """filter the rows which have to be deleted"""
-    where: category_bool_exp!
-  ): category_mutation_response
+    where: lr_academy_category_bool_exp!
+  ): lr_academy_category_mutation_response
 
   """
-  delete single row from the table: "category"
+  delete single row from the table: "lr_academy_category"
   """
-  delete_category_by_pk(id: Int!): category
+  delete_lr_academy_category_by_pk(id: Int!): lr_academy_category
 
   """
-  delete data from the table: "course"
+  delete data from the table: "lr_academy_course"
   """
-  delete_course(
+  delete_lr_academy_course(
     """filter the rows which have to be deleted"""
-    where: course_bool_exp!
-  ): course_mutation_response
+    where: lr_academy_course_bool_exp!
+  ): lr_academy_course_mutation_response
 
   """
-  delete single row from the table: "course"
+  delete single row from the table: "lr_academy_course"
   """
-  delete_course_by_pk(id: Int!): course
+  delete_lr_academy_course_by_pk(id: Int!): lr_academy_course
 
   """
-  delete data from the table: "course_content"
+  delete data from the table: "lr_academy_course_content"
   """
-  delete_course_content(
+  delete_lr_academy_course_content(
     """filter the rows which have to be deleted"""
-    where: course_content_bool_exp!
-  ): course_content_mutation_response
+    where: lr_academy_course_content_bool_exp!
+  ): lr_academy_course_content_mutation_response
 
   """
-  delete single row from the table: "course_content"
+  delete single row from the table: "lr_academy_course_content"
   """
-  delete_course_content_by_pk(id: Int!): course_content
+  delete_lr_academy_course_content_by_pk(id: Int!): lr_academy_course_content
 
   """
   delete data from the table: "product_test"
@@ -752,70 +1045,70 @@ type mutation_root {
   delete_test_time_by_pk(id: Int!): test_time
 
   """
-  insert data into the table: "category"
+  insert data into the table: "lr_academy_category"
   """
-  insert_category(
+  insert_lr_academy_category(
     """the rows to be inserted"""
-    objects: [category_insert_input!]!
+    objects: [lr_academy_category_insert_input!]!
 
     """upsert condition"""
-    on_conflict: category_on_conflict
-  ): category_mutation_response
+    on_conflict: lr_academy_category_on_conflict
+  ): lr_academy_category_mutation_response
 
   """
-  insert a single row into the table: "category"
+  insert a single row into the table: "lr_academy_category"
   """
-  insert_category_one(
+  insert_lr_academy_category_one(
     """the row to be inserted"""
-    object: category_insert_input!
+    object: lr_academy_category_insert_input!
 
     """upsert condition"""
-    on_conflict: category_on_conflict
-  ): category
+    on_conflict: lr_academy_category_on_conflict
+  ): lr_academy_category
 
   """
-  insert data into the table: "course"
+  insert data into the table: "lr_academy_course"
   """
-  insert_course(
+  insert_lr_academy_course(
     """the rows to be inserted"""
-    objects: [course_insert_input!]!
+    objects: [lr_academy_course_insert_input!]!
 
     """upsert condition"""
-    on_conflict: course_on_conflict
-  ): course_mutation_response
+    on_conflict: lr_academy_course_on_conflict
+  ): lr_academy_course_mutation_response
 
   """
-  insert data into the table: "course_content"
+  insert data into the table: "lr_academy_course_content"
   """
-  insert_course_content(
+  insert_lr_academy_course_content(
     """the rows to be inserted"""
-    objects: [course_content_insert_input!]!
+    objects: [lr_academy_course_content_insert_input!]!
 
     """upsert condition"""
-    on_conflict: course_content_on_conflict
-  ): course_content_mutation_response
+    on_conflict: lr_academy_course_content_on_conflict
+  ): lr_academy_course_content_mutation_response
 
   """
-  insert a single row into the table: "course_content"
+  insert a single row into the table: "lr_academy_course_content"
   """
-  insert_course_content_one(
+  insert_lr_academy_course_content_one(
     """the row to be inserted"""
-    object: course_content_insert_input!
+    object: lr_academy_course_content_insert_input!
 
     """upsert condition"""
-    on_conflict: course_content_on_conflict
-  ): course_content
+    on_conflict: lr_academy_course_content_on_conflict
+  ): lr_academy_course_content
 
   """
-  insert a single row into the table: "course"
+  insert a single row into the table: "lr_academy_course"
   """
-  insert_course_one(
+  insert_lr_academy_course_one(
     """the row to be inserted"""
-    object: course_insert_input!
+    object: lr_academy_course_insert_input!
 
     """upsert condition"""
-    on_conflict: course_on_conflict
-  ): course
+    on_conflict: lr_academy_course_on_conflict
+  ): lr_academy_course
 
   """
   insert data into the table: "product_test"
@@ -862,82 +1155,82 @@ type mutation_root {
   ): test_time
 
   """
-  update data of the table: "category"
+  update data of the table: "lr_academy_category"
   """
-  update_category(
+  update_lr_academy_category(
     """increments the numeric columns with given value of the filtered values"""
-    _inc: category_inc_input
+    _inc: lr_academy_category_inc_input
 
     """sets the columns of the filtered rows to the given values"""
-    _set: category_set_input
+    _set: lr_academy_category_set_input
 
     """filter the rows which have to be updated"""
-    where: category_bool_exp!
-  ): category_mutation_response
+    where: lr_academy_category_bool_exp!
+  ): lr_academy_category_mutation_response
 
   """
-  update single row of the table: "category"
+  update single row of the table: "lr_academy_category"
   """
-  update_category_by_pk(
+  update_lr_academy_category_by_pk(
     """increments the numeric columns with given value of the filtered values"""
-    _inc: category_inc_input
+    _inc: lr_academy_category_inc_input
 
     """sets the columns of the filtered rows to the given values"""
-    _set: category_set_input
-    pk_columns: category_pk_columns_input!
-  ): category
+    _set: lr_academy_category_set_input
+    pk_columns: lr_academy_category_pk_columns_input!
+  ): lr_academy_category
 
   """
-  update data of the table: "course"
+  update data of the table: "lr_academy_course"
   """
-  update_course(
+  update_lr_academy_course(
     """increments the numeric columns with given value of the filtered values"""
-    _inc: course_inc_input
+    _inc: lr_academy_course_inc_input
 
     """sets the columns of the filtered rows to the given values"""
-    _set: course_set_input
+    _set: lr_academy_course_set_input
 
     """filter the rows which have to be updated"""
-    where: course_bool_exp!
-  ): course_mutation_response
+    where: lr_academy_course_bool_exp!
+  ): lr_academy_course_mutation_response
 
   """
-  update single row of the table: "course"
+  update single row of the table: "lr_academy_course"
   """
-  update_course_by_pk(
+  update_lr_academy_course_by_pk(
     """increments the numeric columns with given value of the filtered values"""
-    _inc: course_inc_input
+    _inc: lr_academy_course_inc_input
 
     """sets the columns of the filtered rows to the given values"""
-    _set: course_set_input
-    pk_columns: course_pk_columns_input!
-  ): course
+    _set: lr_academy_course_set_input
+    pk_columns: lr_academy_course_pk_columns_input!
+  ): lr_academy_course
 
   """
-  update data of the table: "course_content"
+  update data of the table: "lr_academy_course_content"
   """
-  update_course_content(
+  update_lr_academy_course_content(
     """increments the numeric columns with given value of the filtered values"""
-    _inc: course_content_inc_input
+    _inc: lr_academy_course_content_inc_input
 
     """sets the columns of the filtered rows to the given values"""
-    _set: course_content_set_input
+    _set: lr_academy_course_content_set_input
 
     """filter the rows which have to be updated"""
-    where: course_content_bool_exp!
-  ): course_content_mutation_response
+    where: lr_academy_course_content_bool_exp!
+  ): lr_academy_course_content_mutation_response
 
   """
-  update single row of the table: "course_content"
+  update single row of the table: "lr_academy_course_content"
   """
-  update_course_content_by_pk(
+  update_lr_academy_course_content_by_pk(
     """increments the numeric columns with given value of the filtered values"""
-    _inc: course_content_inc_input
+    _inc: lr_academy_course_content_inc_input
 
     """sets the columns of the filtered rows to the given values"""
-    _set: course_content_set_input
-    pk_columns: course_content_pk_columns_input!
-  ): course_content
+    _set: lr_academy_course_content_set_input
+    pk_columns: lr_academy_course_content_pk_columns_input!
+  ): lr_academy_course_content
 
   """
   update data of the table: "product_test"
@@ -1197,11 +1490,11 @@ type product_test_variance_fields {
 
 type query_root {
   """
-  fetch data from the table: "category"
+  fetch data from the table: "lr_academy_category"
   """
-  category(
+  lr_academy_category(
     """distinct select on columns"""
-    distinct_on: [category_select_column!]
+    distinct_on: [lr_academy_category_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1210,18 +1503,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [category_order_by!]
+    order_by: [lr_academy_category_order_by!]
 
     """filter the rows returned"""
-    where: category_bool_exp
-  ): [category!]!
+    where: lr_academy_category_bool_exp
+  ): [lr_academy_category!]!
 
   """
-  fetch aggregated fields from the table: "category"
+  fetch aggregated fields from the table: "lr_academy_category"
   """
-  category_aggregate(
+  lr_academy_category_aggregate(
     """distinct select on columns"""
-    distinct_on: [category_select_column!]
+    distinct_on: [lr_academy_category_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1230,21 +1523,23 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [category_order_by!]
+    order_by: [lr_academy_category_order_by!]
 
     """filter the rows returned"""
-    where: category_bool_exp
-  ): category_aggregate!
-
-  """fetch data from the table: "category" using primary key columns"""
-  category_by_pk(id: Int!): category
+    where: lr_academy_category_bool_exp
+  ): lr_academy_category_aggregate!
 
   """
-  fetch data from the table: "course"
+  fetch data from the table: "lr_academy_category" using primary key columns
   """
-  course(
+  lr_academy_category_by_pk(id: Int!): lr_academy_category
+
+  """
+  fetch data from the table: "lr_academy_course"
+  """
+  lr_academy_course(
     """distinct select on columns"""
-    distinct_on: [course_select_column!]
+    distinct_on: [lr_academy_course_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1253,18 +1548,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_order_by!]
+    order_by: [lr_academy_course_order_by!]
 
     """filter the rows returned"""
-    where: course_bool_exp
-  ): [course!]!
+    where: lr_academy_course_bool_exp
+  ): [lr_academy_course!]!
 
   """
-  fetch aggregated fields from the table: "course"
+  fetch aggregated fields from the table: "lr_academy_course"
   """
-  course_aggregate(
+  lr_academy_course_aggregate(
     """distinct select on columns"""
-    distinct_on: [course_select_column!]
+    distinct_on: [lr_academy_course_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1273,21 +1568,23 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_order_by!]
+    order_by: [lr_academy_course_order_by!]
 
     """filter the rows returned"""
-    where: course_bool_exp
-  ): course_aggregate!
-
-  """fetch data from the table: "course" using primary key columns"""
-  course_by_pk(id: Int!): course
+    where: lr_academy_course_bool_exp
+  ): lr_academy_course_aggregate!
 
   """
-  fetch data from the table: "course_content"
+  fetch data from the table: "lr_academy_course" using primary key columns
   """
-  course_content(
+  lr_academy_course_by_pk(id: Int!): lr_academy_course
+
+  """
+  fetch data from the table: "lr_academy_course_content"
+  """
+  lr_academy_course_content(
     """distinct select on columns"""
-    distinct_on: [course_content_select_column!]
+    distinct_on: [lr_academy_course_content_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1296,18 +1593,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_content_order_by!]
+    order_by: [lr_academy_course_content_order_by!]
 
     """filter the rows returned"""
-    where: course_content_bool_exp
-  ): [course_content!]!
+    where: lr_academy_course_content_bool_exp
+  ): [lr_academy_course_content!]!
 
   """
-  fetch aggregated fields from the table: "course_content"
+  fetch aggregated fields from the table: "lr_academy_course_content"
   """
-  course_content_aggregate(
+  lr_academy_course_content_aggregate(
     """distinct select on columns"""
-    distinct_on: [course_content_select_column!]
+    distinct_on: [lr_academy_course_content_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1316,14 +1613,16 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_content_order_by!]
+    order_by: [lr_academy_course_content_order_by!]
 
     """filter the rows returned"""
-    where: course_content_bool_exp
-  ): course_content_aggregate!
+    where: lr_academy_course_content_bool_exp
+  ): lr_academy_course_content_aggregate!
 
-  """fetch data from the table: "course_content" using primary key columns"""
-  course_content_by_pk(id: Int!): course_content
+  """
+  fetch data from the table: "lr_academy_course_content" using primary key columns
+  """
+  lr_academy_course_content_by_pk(id: Int!): lr_academy_course_content
 
   """
   fetch data from the table: "product_test"
@@ -1414,11 +1713,11 @@ type query_root {
 
 type subscription_root {
   """
-  fetch data from the table: "category"
+  fetch data from the table: "lr_academy_category"
   """
-  category(
+  lr_academy_category(
     """distinct select on columns"""
-    distinct_on: [category_select_column!]
+    distinct_on: [lr_academy_category_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1427,18 +1726,18 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [category_order_by!]
+    order_by: [lr_academy_category_order_by!]
 
     """filter the rows returned"""
-    where: category_bool_exp
-  ): [category!]!
+    where: lr_academy_category_bool_exp
+  ): [lr_academy_category!]!
 
   """
-  fetch aggregated fields from the table: "category"
+  fetch aggregated fields from the table: "lr_academy_category"
   """
-  category_aggregate(
+  lr_academy_category_aggregate(
     """distinct select on columns"""
-    distinct_on: [category_select_column!]
+    distinct_on: [lr_academy_category_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1447,21 +1746,23 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [category_order_by!]
+    order_by: [lr_academy_category_order_by!]
 
     """filter the rows returned"""
-    where: category_bool_exp
-  ): category_aggregate!
-
-  """fetch data from the table: "category" using primary key columns"""
-  category_by_pk(id: Int!): category
+    where: lr_academy_category_bool_exp
+  ): lr_academy_category_aggregate!
 
   """
-  fetch data from the table: "course"
+  fetch data from the table: "lr_academy_category" using primary key columns
   """
-  course(
+  lr_academy_category_by_pk(id: Int!): lr_academy_category
+
+  """
+  fetch data from the table: "lr_academy_course"
+  """
+  lr_academy_course(
     """distinct select on columns"""
-    distinct_on: [course_select_column!]
+    distinct_on: [lr_academy_course_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1470,18 +1771,18 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_order_by!]
+    order_by: [lr_academy_course_order_by!]
 
     """filter the rows returned"""
-    where: course_bool_exp
-  ): [course!]!
+    where: lr_academy_course_bool_exp
+  ): [lr_academy_course!]!
 
   """
-  fetch aggregated fields from the table: "course"
+  fetch aggregated fields from the table: "lr_academy_course"
   """
-  course_aggregate(
+  lr_academy_course_aggregate(
     """distinct select on columns"""
-    distinct_on: [course_select_column!]
+    distinct_on: [lr_academy_course_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1490,21 +1791,23 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_order_by!]
+    order_by: [lr_academy_course_order_by!]
 
     """filter the rows returned"""
-    where: course_bool_exp
-  ): course_aggregate!
-
-  """fetch data from the table: "course" using primary key columns"""
-  course_by_pk(id: Int!): course
+    where: lr_academy_course_bool_exp
+  ): lr_academy_course_aggregate!
 
   """
-  fetch data from the table: "course_content"
+  fetch data from the table: "lr_academy_course" using primary key columns
   """
-  course_content(
+  lr_academy_course_by_pk(id: Int!): lr_academy_course
+
+  """
+  fetch data from the table: "lr_academy_course_content"
+  """
+  lr_academy_course_content(
     """distinct select on columns"""
-    distinct_on: [course_content_select_column!]
+    distinct_on: [lr_academy_course_content_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1513,18 +1816,18 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_content_order_by!]
+    order_by: [lr_academy_course_content_order_by!]
 
     """filter the rows returned"""
-    where: course_content_bool_exp
-  ): [course_content!]!
+    where: lr_academy_course_content_bool_exp
+  ): [lr_academy_course_content!]!
 
   """
-  fetch aggregated fields from the table: "course_content"
+  fetch aggregated fields from the table: "lr_academy_course_content"
   """
-  course_content_aggregate(
+  lr_academy_course_content_aggregate(
     """distinct select on columns"""
-    distinct_on: [course_content_select_column!]
+    distinct_on: [lr_academy_course_content_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1533,14 +1836,16 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [course_content_order_by!]
+    order_by: [lr_academy_course_content_order_by!]
 
     """filter the rows returned"""
-    where: course_content_bool_exp
-  ): course_content_aggregate!
+    where: lr_academy_course_content_bool_exp
+  ): lr_academy_course_content_aggregate!
 
-  """fetch data from the table: "course_content" using primary key columns"""
-  course_content_by_pk(id: Int!): course_content
+  """
+  fetch data from the table: "lr_academy_course_content" using primary key columns
+  """
+  lr_academy_course_content_by_pk(id: Int!): lr_academy_course_content
 
   """
   fetch data from the table: "product_test"

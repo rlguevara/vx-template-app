@@ -1,13 +1,19 @@
 use yew::prelude::*;
+use yew_router::prelude::*;
+use crate::components::router::Route;
 
 #[derive(Properties, Clone, PartialEq )]
 pub struct Props {
     pub title: String,
     pub description: String,
+    pub category_id: i64,
 }
 
 #[function_component(CategoryItem)]
 pub fn categoryitem(props: &Props) -> Html {
+    let navigator = use_navigator().unwrap();
+    let category_id = props.category_id;
+    let onclick = Callback::from(move |_| navigator.push(&Route::Courses { id: category_id}));
     html! {
         <div class="col-lg-4 col-md-6">
             <div class="service-item">
@@ -18,7 +24,7 @@ pub fn categoryitem(props: &Props) -> Html {
                     <h4>{&props.title}</h4>
                     <p>{&props.description}</p>
                     <div class="main-button">
-                        <a href="#">{"Read More"}</a>
+                        <button onclick={onclick}>{"Read more..."}</button>
                     </div>
                 </div>
             </div>

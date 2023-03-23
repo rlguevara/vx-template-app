@@ -10,5 +10,10 @@ pub mod contact;
 pub mod footer;
 
 pub mod categoryitem;
+pub mod categoryinfo;
+
+pub mod courses;
+pub mod courseitem;
 
 pub mod pages;
+pub mod router;
