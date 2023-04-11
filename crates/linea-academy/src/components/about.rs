@@ -58,7 +58,7 @@ pub fn about_us() -> Html {
                 </div>
               </div>
             </div>
-            <div class="col-lg-5 align-self-center">
+            <div class="col-lg-12 align-self-center">
               <div class="section-heading">
                 <h6>{"About Us"}</h6>
                 <h2>{"What make us the best academy online?"}</h2>

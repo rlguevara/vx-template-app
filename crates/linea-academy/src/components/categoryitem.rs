@@ -24,7 +24,7 @@ pub fn categoryitem(props: &Props) -> Html {
                     <h4>{&props.title}</h4>
                     <p>{&props.description}</p>
                     <div class="main-button">
-                        <button onclick={onclick}>{"Read more..."}</button>
+                        <button onclick={onclick}>{"Saber más..."}</button>
                     </div>
                 </div>
             </div>

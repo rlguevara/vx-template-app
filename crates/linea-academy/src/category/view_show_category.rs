@@ -74,9 +74,7 @@ impl Component for ShowCategoryList {
             }
             }).collect::<Html>();
         html! {
-            <div>
             {list_category}
-            </div>
         }
     }
 

@@ -5,6 +5,7 @@ use crate::graphql::{
     GraphQLService, GraphQLTask, Request, RequestTask};
 use code_location::code_location;
 use crate::components::courseitem::CourseItem;
+use log::*;
 
 pub struct ShowCourseList {
     graphql_task: Option<GraphQLTask>,
@@ -58,29 +59,13 @@ impl Component for ShowCourseList {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        // let show_courses_data = ctx.link().callback(|_| Self::Message::ShowCourseData);
-
-        // let list_category = self.category.clone().and_then(|data| Some(data.category)).unwrap_or_default().iter().map(|category| {
-        //     html!{
-        //         <CategoryItem title={category.name.clone()} description={category.description.clone()} />
-        //     }
-        //     }).collect::<Html>();
         let list_courses = self.course.clone().and_then(|data| Some(data.lr_academy_course)).unwrap_or_default().iter().map(|course| {
             html!{
-                <CourseItem course_id={course.id} course_name={course.course_name.clone()}/>
-                // <div>
-                //     <span>{&course.course_name}</span>
-                //     <span>{&course.course_description}</span>
-                //     <span>{course.category_id}</span>
-                // </div>
+                <CourseItem course_id={course.id} course_name={course.course_name.clone()} category_id={ctx.props().category_id}/>
             }
             }).collect::<Html>();
         html! {
-            <div>
-
-            // <button class="button is-dark my-1" onclick={show_courses_data}>{"Show courses"}</button>
             {list_courses}
-            </div>
         }
     }
 

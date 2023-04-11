@@ -1,4 +1,6 @@
 use yew::prelude::*;
+use crate::category::view_delete_category::DelCategory;
+use crate::category::view_update_category::UpdtCategory;
 
 #[derive(Properties, PartialEq, Clone)]
 pub struct Props {
@@ -22,9 +24,12 @@ pub fn category_info(props: &Props) -> Html {
                                     <h2>{&props.category_name}</h2>
                                     <p>{&props.category_description}</p>
                                     <div class="buttons">
-                                        <div class="main-button">
-                                            <a href="#">{"¡Inscríbete!"}</a>
-                                        </div>
+                                        <UpdtCategory category_id={props.category_id}
+                                                        category_name={props.category_name.clone()}
+                                                        category_description={props.category_description.clone()}
+                                                        category_image={props.category_image.clone()}
+                                                        />
+                                        <DelCategory category_id={props.category_id} />
                                     </div>
                                 </div>
                             </div>

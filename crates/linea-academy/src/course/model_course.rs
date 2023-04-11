@@ -34,6 +34,17 @@ impl graphql::Request for ShowCourseById{}
 pub struct AddCourse;
 impl graphql::Request for AddCourse{}
 
+// Delete course data
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "../../schema.graphql",
+    query_path = "../../query.graphql",
+    response_derives = "Debug, Clone",
+    normalization = "rust"
+)]
+pub struct DeleteCourse;
+impl graphql::Request for DeleteCourse{}
+
 // Show content data by course
 #[derive(GraphQLQuery)]
 #[graphql(

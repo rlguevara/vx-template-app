@@ -27,7 +27,7 @@ impl Component for ContentById {
     type Properties = Props;
 
     fn create (ctx: &Context<Self>) -> Self {
-        // let show_data = ctx.link().send_message(Self::Message::ShowCourseData);
+        let show_data = ctx.link().send_message(Self::Message::ShowContentById);
         Self {
             graphql_task: Some(GraphQLService::connect(&code_location!())),
             req_task: None,
@@ -57,21 +57,18 @@ impl Component for ContentById {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let show_content_data = ctx.link().callback(|_| Self::Message::ShowContentById);
+        // let show_content_data = ctx.link().callback(|_| Self::Message::ShowContentById);
         let list_content = self.content.clone().and_then(|data| Some(data.lr_academy_course_content)).unwrap_or_default().iter().map(|content| {
             html!{
-                <div>
-                    <span>{&content.content_name}</span>
-                    <span>{&content.content_description}</span>
-                </div>
+                <>
+                    <div>{&content.content_name}</div>
+                    <div>{&content.content_description}</div>
+                    <iframe width="560" height="315" src={content.content_url.clone()} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                </>
             }
             }).collect::<Html>();
         html! {
-            <div>
-                <h1>{"HELLO?"}</h1>
-            <button class="button is-dark my-1" onclick={show_content_data}>{"Show content"}</button>
             {list_content}
-            </div>
         }
     }
 

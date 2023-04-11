@@ -15,5 +15,8 @@ pub mod categoryinfo;
 pub mod courses;
 pub mod courseitem;
 
+pub mod content;
+pub mod contentitem;
+
 pub mod pages;
 pub mod router;

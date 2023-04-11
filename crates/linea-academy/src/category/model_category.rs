@@ -33,3 +33,25 @@ impl graphql::Request for ShowCategoryById{}
 )]
 pub struct AddCategory;
 impl graphql::Request for AddCategory{}
+
+// Update category data
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "../../schema.graphql",
+    query_path = "../../query.graphql",
+    response_derives = "Debug, Clone",
+    normalization = "rust"
+)]
+pub struct UpdateCategory;
+impl graphql::Request for UpdateCategory{}
+
+// Delete category data
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "../../schema.graphql",
+    query_path = "../../query.graphql",
+    response_derives = "Debug, Clone",
+    normalization = "rust"
+)]
+pub struct DeleteCategory;
+impl graphql::Request for DeleteCategory{}

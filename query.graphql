@@ -46,6 +46,14 @@ mutation add_category($category_description: String = "", $id: Int = 10, $catego
   }
 }
 
+mutation update_category($id: Int = 10, $category_name: String = "", $category_description: String = "", $category_image_url: String = "") {
+  update_lr_academy_category_by_pk(pk_columns: {id: $id}, _set: {category_name: $category_name, category_description: $category_description, category_image_url: $category_image_url}) {
+    category_name
+    category_description
+    category_image_url
+  }
+}
+
 mutation delete_category($id: Int = 10) {
   delete_lr_academy_category_by_pk(id: $id) {
     id
@@ -67,6 +75,16 @@ query show_category_by_id($_eq: Int = 10) {
 
 mutation add_course($id: Int = 10, $course_name: String = "", $course_image_url: String = "", $course_description: String = "", $category_id: Int = 10) {
   insert_lr_academy_course_one(object: {id: $id, course_name: $course_name, course_image_url: $course_image_url, course_description: $course_description, category_id: $category_id}) {
+    id
+    course_name
+    course_description
+    course_image_url
+    category_id
+  }
+}
+
+mutation delete_course($id: Int = 10) {
+  delete_lr_academy_course_by_pk(id: $id) {
     id
     course_name
     course_description
@@ -107,6 +125,28 @@ query show_content_by_course($_eq: Int = 10) {
 
 query show_content_by_id($_eq: Int = 10) {
   lr_academy_course_content(where: {id: {_eq: $_eq}}) {
+    id
+    content_name
+    content_description
+    content_type
+    content_url
+    course_id
+  }
+}
+
+mutation add_content($id: Int = 10, $content_url: String = "", $content_type: String = "", $content_name: String = "", $content_description: String = "") {
+  insert_lr_academy_course_content_one(object: {id: $id, content_name: $content_name, content_description: $content_description, content_type: $content_type, content_url: $content_url, course_id: 10}) {
+    id
+    content_name
+    content_description
+    content_type
+    content_url
+    course_id
+  }
+}
+
+mutation delete_content($id: Int = 10) {
+  delete_lr_academy_course_content_by_pk(id: $id) {
     id
     content_name
     content_description

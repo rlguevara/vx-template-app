@@ -7,6 +7,7 @@ use crate::graphql::{
     GraphQLService, GraphQLTask, Request, RequestTask};
 use code_location::code_location;
 use crate::components::router::Route;
+use crate::components::contentitem::ContentItem;
 
 pub struct ShowContentByCourseList {
     graphql_task: Option<GraphQLTask>,
@@ -22,7 +23,7 @@ pub enum ShowContentByCourseListMessage {
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub content_id: i64,
+    pub course_id: i64,
 }
 
 
@@ -36,7 +37,7 @@ impl Component for ShowContentByCourseList {
             graphql_task: Some(GraphQLService::connect(&code_location!())),
             req_task: None,
             content: None,
-            content_id: ctx.props().content_id,
+            content_id: ctx.props().course_id,
         }
     }
 
@@ -45,7 +46,7 @@ impl Component for ShowContentByCourseList {
             Self::Message::ShowContentData => {
                 if let Some(graphql_task) = self.graphql_task.as_mut() {
                     let vars = show_content_by_course::Variables {
-                        eq: Some(ctx.props().content_id),
+                        eq: Some(ctx.props().course_id),
                     };
                     let task = ShowContentByCourse::request(graphql_task, &ctx, vars, |data| {
                         Self::Message::ContentReceived(data)
@@ -61,27 +62,27 @@ impl Component for ShowContentByCourseList {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let content = self.content.clone();
-        let navigator = Some(ctx.link().navigator()).unwrap();
+        // let content = self.content.clone();
+        // let navigator = Some(ctx.link().navigator()).unwrap();
         let list_content = self.content.clone().and_then(|data| Some(data.lr_academy_course_content)).unwrap_or_default().iter().map(|content| {
-            let content_id_data = content.id.clone();
-            let navigator = navigator.clone().unwrap();
-            let onclick = Callback::from(move |_| navigator.push(&Route::Courses { id: content_id_data}));
+            // let content_id_data = content.id.clone();
+            // let navigator = navigator.clone().unwrap();
+            // let onclick = Callback::from(move |_| navigator.push(&Route::ContentDetail { id: content_id_data}));
             html!{
-                <div>
-                    <div>{&content.content_name}</div>
-                    <div>{&content.content_description}</div>
-                    <div>{&content.content_url}</div>
-                    <div>{content.id}</div>
-                    <div>{"Hello?"}</div>
-                    <button class="button is-link" onclick={onclick}>{"Read more..."}</button>
-                </div>
+                <>
+                    <ContentItem course_id={ctx.props().course_id} content_id={content.id} content_name={content.content_name.clone()} />
+                    // <ul>
+                    //     <li>{&content.content_name}</li>
+                    //     <li>{&content.content_description}</li>
+                    //     <li>{&content.content_url}</li>
+                    //     <li>{content.id}</li>
+                    // </ul>
+                    // <button class="button is-link" onclick={onclick}>{"Read more..."}</button>
+                </>
             }
             }).collect::<Html>();
         html! {
-            <div>
             {list_content}
-            </div>
         }
     }
 

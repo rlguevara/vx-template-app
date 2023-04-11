@@ -121,44 +121,72 @@ impl Component for AddNewCourse {
         let obtain_category_id = ctx.props().c_id.clone().to_string();
 
         html! {
-            <div class="box">
-                <div class="field">
-                    <label class="label">{"Id"}</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Id" oninput={on_id}/>
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">{"Name"}</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Name" oninput={on_name}/>
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">{"Description"}</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Description" oninput={on_description}/>
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">{"Image"}</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Image" oninput={on_image}/>
-                    </div>
-                </div>
+            // <div class="box">
+            //     <div class="field">
+            //         <label class="label">{"Id"}</label>
+            //         <div class="control">
+            //             <input class="input" type="text" placeholder="Id" oninput={on_id}/>
+            //         </div>
+            //     </div>
+            //     <div class="field">
+            //         <label class="label">{"Name"}</label>
+            //         <div class="control">
+            //             <input class="input" type="text" placeholder="Name" oninput={on_name}/>
+            //         </div>
+            //     </div>
+            //     <div class="field">
+            //         <label class="label">{"Description"}</label>
+            //         <div class="control">
+            //             <input class="input" type="text" placeholder="Description" oninput={on_description}/>
+            //         </div>
+            //     </div>
+            //     <div class="field">
+            //         <label class="label">{"Image"}</label>
+            //         <div class="control">
+            //             <input class="input" type="text" placeholder="Image" oninput={on_image}/>
+            //         </div>
+            //     </div>
 
-                <div class="field">
-                    <label class="label">{"Category id"}</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Category id" oninput={on_category_id} c_id={obtain_category_id} />
-                    </div>
+            //     <div class="field">
+            //         <label class="label">{"Category id"}</label>
+            //         <div class="control">
+            //             <input class="input" type="text" placeholder="Category id" oninput={on_category_id} c_id={obtain_category_id} />
+            //         </div>
+            //     </div>
+            //     <div class="field is-grouped">
+            //         <div class="control">
+            //             <button class="button is-link" onclick={ctx.link().callback(|_| Self::Message::AddCourse)}>{"Add"}</button>
+            //         </div>
+            //     </div>
+            // </div>
+            <> 
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">{"Id del curso"}</span>
+                    <input type="text" class="form-control" placeholder="Id" aria-label="Username" aria-describedby="basic-addon1" oninput={on_id}/>
                 </div>
-                <div class="field is-grouped">
-                    <div class="control">
-                        <button class="button is-link" onclick={ctx.link().callback(|_| Self::Message::AddCourse)}>{"Add"}</button>
-                    </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">{"Nombre del curso"}</span>
+                    <input type="text" class="form-control" placeholder="Nombre" aria-label="Username" aria-describedby="basic-addon1" oninput={on_name}/>
                 </div>
-            </div> 
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">{"Descripción del curso"}</span>
+                    <input type="text" class="form-control" placeholder="Descripción" aria-label="Username" aria-describedby="basic-addon1" oninput={on_description}/>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">{"Url de la imagen del curso"}</span>
+                    <input type="text" class="form-control" placeholder="Url" aria-label="Username" aria-describedby="basic-addon1" oninput={on_image}/>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">{"Id de la categoría"}</span>
+                    <input type="text" class="form-control" placeholder="Id" aria-label="Username" aria-describedby="basic-addon1" c_id={ctx.props().c_id.clone().to_string()} value={obtain_category_id}/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{"Cancelar"}</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={ctx.link().callback(|_| Self::Message::AddCourse)}>{"Crear curso"}</button>
+            </div>    
+            </>
         }
     }
 }
